@@ -27,7 +27,8 @@ router.post('/', (request, response) => {
     }
 
     function fallback(agent) {
-      agent.add(`No he entendido tu pregunta. (Respuesta desde aws)`);
+        recordQuery(agent, "Default fallback");
+      // agent.add(`No he entendido tu pregunta. (Respuesta desde aws)`);
     }
 
     function correctRequest(agent){
