@@ -1,6 +1,6 @@
 'use strict';
 
-const {WebhookClient, Suggestion} = require('dialogflow-fulfillment');
+const { WebhookClient } = require('dialogflow-fulfillment');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const compression = require('compression');
@@ -22,13 +22,11 @@ router.use(awsServerlessExpressMiddleware.eventContext());
 router.post('/', (request, response) => {
     const agent = new WebhookClient({ request, response });
 
-    function welcome(agent) {
-      agent.add(`Bienvenido al Webhook de AWS`);
-    }
+
+    const welcome = agent => agent.add(`Bienvenido al Webhook de AWS`);
 
     function fallback(agent) {
         recordQuery(agent, "Default fallback");
-      // agent.add(`No he entendido tu pregunta. (Respuesta desde aws)`);
     }
 
     function correctRequest(agent){
@@ -36,8 +34,7 @@ router.post('/', (request, response) => {
         console.log('correct request');
         console.log(agent.contexts);
         let context = agent.getContext('was-successful');
-        return dynamoRecord(context.parameters.queries, agent.query, context.parameters.attendedBy, "AytoFailedRequests", agent);
-
+        return dynamoRecord(context.parameters.queries, agent.query, context.parameters.attendedBy, "AytoFailedRequests");
     }
 
     function generalRequest(agent){
@@ -97,7 +94,7 @@ router.post('/', (request, response) => {
 
 app.use('/', router);
 
-let dynamoRecord = (queries, correct, attendedBy, tableName, agent) => {
+let dynamoRecord = (queries, correct, attendedBy, tableName) => {
     let myparams =  {
         RequestItems: {
             [tableName]: [{
@@ -122,20 +119,9 @@ let dynamoRecord = (queries, correct, attendedBy, tableName, agent) => {
     return new Promise(resolve => {
         dynamoDB.batchWriteItem(myparams, function (err, data){
             if (err) {
-                let context = agent.getContext('was-successful');
-
-                context.parameters.queries = null;
-                context.parameters.attendedBy = null;
-                context.parameters.correctRequest = agent.query;
-                agent.setContext(context);
                 return(resolve( console.error("Unable to add item. Error JSON:", JSON.stringify(err, null, 2))));
             } else {
-                let context = agent.getContext('was-successful');
 
-                context.parameters.queries = null;
-                context.parameters.attendedBy = null;
-                context.parameters.correctRequest = agent.query;
-                agent.setContext(context);
                 return(resolve('Success'));
             }
 
