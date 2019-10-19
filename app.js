@@ -1,6 +1,8 @@
 'use strict';
 
-const { WebhookClient, Suggestion } = require('dialogflow-fulfillment');
+
+const { WebhookClient } = require('dialogflow-fulfillment');
+
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const compression = require('compression');
@@ -21,7 +23,6 @@ router.use(bodyParser.urlencoded({ extended: true }));
 router.use(awsServerlessExpressMiddleware.eventContext());
 
 router.post('/', (request, response) => {
-
     const agent = new WebhookClient({ request, response });
 
     // As handler logic grows please move to intentHandlers/ folder as done with correctRequest.js
@@ -59,5 +60,4 @@ router.post('/', (request, response) => {
 });
 
 app.use('/', router);
-
 module.exports = app;
