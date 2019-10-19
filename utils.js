@@ -1,5 +1,6 @@
 const AWS = require('aws-sdk');
 let dynamoDB = new AWS.DynamoDB();
+const http = require('http');
 
 const dynamoRecord = (queries, correct, attendedBy, tableName) => {
     let query =  {
@@ -49,8 +50,27 @@ const recordQuery = (agent, intent) => {
     agent.setContext(context);
 };
 
+const getHttp = (url, query) => {
+    return new Promise((resolve, reject) => {
+        const request = http.get(`${url}/${query}`, response => {
+            console.log(response);
+            response.setEncoding('binary');
+            let returnData = '';
+            if (response.statusCode < 200 || response.statusCode >= 300) {
+                return reject(new Error(`${response.statusCode}: ${response.req.getHeader('host')} ${response.req.path}`));
+            }
+            response.on('data', chunk => {
+                returnData += chunk;
+            });
+            response.on('end', () => resolve(returnData));
+            response.on('error', error => reject(error));
+        });
+        request.end();
+    });
+};
 
 module.exports = {
     dynamoRecord,
     recordQuery,
+    getHttp
 };

@@ -12,6 +12,7 @@ const router = express.Router();
 
 const { recordQuery } = require('./utils');
 const correctRequest = require('./intentHandlers/correctRequest');
+const { planCoordinates } = require('./APIs');
 
 router.use(compression());
 router.use(cors());
@@ -24,7 +25,12 @@ router.post('/', (request, response) => {
     const agent = new WebhookClient({ request, response });
 
     // As handler logic grows please move to intentHandlers/ folder as done with correctRequest.js
-    const welcome = agent => agent.add(`Bienvenido al Webhook de AWS`);
+    const welcome = agent => {
+        return planCoordinates().then(res => {
+            console.log(res);
+            agent.add('Bienvenido al Webhook de AWS. ' + res.mensaje);
+        });
+    };
     const fallback = agent => recordQuery(agent, "Default fallback");
     const generalRequest = agent => recordQuery(agent, "General request");
     const activity = agent => recordQuery(agent, "Activity");
