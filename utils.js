@@ -53,9 +53,11 @@ const recordQuery = (agent, intent) => {
 const getHttp = (url, query) => {
     return new Promise((resolve, reject) => {
         const request = http.get(`${url}/${query}`, response => {
+            
             console.log(response);
             response.setEncoding('binary');
             let returnData = '';
+
             if (response.statusCode < 200 || response.statusCode >= 300) {
                 return reject(new Error(`${response.statusCode}: ${response.req.getHeader('host')} ${response.req.path}`));
             }
@@ -69,8 +71,38 @@ const getHttp = (url, query) => {
     });
 };
 
+const getHttpAuth = (url, query, username = 'DUINNOVA', passw = 'Texeira1656') => {
+    return new Promise((resolve, reject) => {
+        const options = {
+        headers: {
+          'Authorization': 'Basic ' + Buffer.from(username + ':' + passw).toString('base64')
+        }
+      };
+
+        const request = http.get(`${url}/${query}`, options, response => {
+            
+            console.log(response);
+            response.setEncoding('binary');
+            let returnData = '';
+
+            if (response.statusCode < 200 || response.statusCode >= 300) {
+                return reject(new Error(`${response.statusCode}: ${response.req.getHeader('host')} ${response.req.path}`));
+            }
+            response.on('data', chunk => {
+                returnData += chunk;
+            });
+            response.on('end', () => resolve(returnData));
+            response.on('error', error => reject(error));
+        });
+        request.end();
+    });
+};
+
+
+
 module.exports = {
     dynamoRecord,
     recordQuery,
-    getHttp
+    getHttp,
+    getHttpAuth
 };

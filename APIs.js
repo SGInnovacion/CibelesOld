@@ -16,9 +16,9 @@ const planCoordinates = (x = '442879' , y = '4475446') => {
             "ambitoDenominacion": "COCHERAS EMT",
             "usos": [
             {
-                "usoId": "052D450000",
+                "usoId": "052D450000",",
                 "usoDenominacion": "DOTACIONAL ZONAS VERDES BÁSICO ",
-                "usoObservacion": "---",
+                "usoObservacion": "---
                 "usoEdificabilidad": "---",
                 "unidadId": "1",
                 "unidadDescripcion": "---"
@@ -97,6 +97,15 @@ const planCoordinates = (x = '442879' , y = '4475446') => {
        return JSON.parse(res);
     })
 };
+
+const planFuzzy = (calle) => {
+
+    const path = `BDCTR_RSGENERAL/restBDC/validarEspaguetti?cadena=${calle}`;
+    return getHttpAuth(PLAN_URL, path).then(res => {
+        console.log(res);
+       return JSON.parse(res);
+    })
+}
 
 module.exports = {
   planCoordinates,
