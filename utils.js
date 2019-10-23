@@ -74,12 +74,14 @@ const getHttp = (url, query) => {
 const getHttpAuth = (url, query, username = 'DUINNOVA', passw = 'Texeira1656') => {
     return new Promise((resolve, reject) => {
         const options = {
+            host: url,
+            path: query,
             headers: {
                 'Authorization': 'Basic ' + Buffer.from(username + ':' + passw).toString('base64')
             }
         };
 
-        const request = http.get(`${url}/${query}`, options, response => {
+        const request = http.request(options, response => {
 
             console.log(response);
             response.setEncoding('binary');

@@ -1,7 +1,7 @@
 const { getHttp, getHttpAuth } = require('./utils');
 
-const PLAN_URL = 'http://www-2.munimadrid.es';
-const BDC_URL = 'http://www-j.munimadrid.es';
+const PLAN_URL = 'www-2.munimadrid.es';
+const BDC_URL = 'www-j.munimadrid.es';
 
 const planCoordinates = (x = '442879' , y = '4475446') => {
     // RESPONSE EXAMPLE
@@ -92,7 +92,7 @@ const planCoordinates = (x = '442879' , y = '4475446') => {
     }*/
 
 
-    const path = `RPGCS_RSPLAN/rest/getInfo.iam?x=${x}&y=${y}`;
+    const path = `/RPGCS_RSPLAN/rest/getInfo.iam?x=${x}&y=${y}`;
     return getHttp(PLAN_URL, path).then(res => {
         console.log(res);
         return JSON.parse(res);
@@ -100,7 +100,7 @@ const planCoordinates = (x = '442879' , y = '4475446') => {
 };
 
 const planAddress = (claseVia = 'calle', nomVia = 'mayor', num = '2') => {
-    const path = `RPGCS_RSPLAN/rest/getInfo.iam?claseVia=${claseVia}&nomVia=${nomVia}&tipoApp=N&num=${num}&calif=`;
+    const path = `/RPGCS_RSPLAN/rest/getInfo.iam?claseVia=${claseVia}&nomVia=${nomVia}&tipoApp=N&num=${num}&calif=`;
     return getHttp(PLAN_URL, path).then(res => {
         console.log(res);
         return JSON.parse(res);
@@ -108,7 +108,7 @@ const planAddress = (claseVia = 'calle', nomVia = 'mayor', num = '2') => {
 };
 
 const planFuzzy = street => {
-    const path = `BDCTR_RSGENERAL/restBDC/validarEspaguetti?cadena=${street}`;
+    const path = `/BDCTR_RSGENERAL/restBDC/validarEspaguetti?cadena=${street}`;
     return getHttpAuth(BDC_URL, path).then(res => {
         console.log('inside planFuzzy');
         console.log(res);
