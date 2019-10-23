@@ -17,14 +17,16 @@ module.exports = (agent) => {
         console.log(x);
         console.log(y);
         let response = planCoordinates(x,y).then(response => {
-        	protection = response.patrimonioHistorico.clase
+        	protection = response.patrimonioHistorico[0].clase
         	agent.add(`La protección de ${street} es ${protection}`)
         }).catch( e => {
         	console.log(e.message)
         })
         
 
-    });
+    }).catch( e => {
+        	console.log(e.message)
+        })
 
 
 };
