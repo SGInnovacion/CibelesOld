@@ -17,7 +17,7 @@ module.exports = (agent) => {
         console.log(x);
         console.log(y);
         let response = planCoordinates(x,y).then(response => {
-        	protection = response.patrimonioHistorico[0].clase
+        	protection = response.patrimonioHistorico[0].clase 
         	agent.add(`La protección de ${street} es ${protection}`)
         }).catch( e => {
         	console.log(e.message)
@@ -27,6 +27,5 @@ module.exports = (agent) => {
     }).catch( e => {
         	console.log(e.message)
         })
-
 
 };

@@ -111,7 +111,7 @@ const planFuzzy = street => {
     const path = `BDCTR_RSGENERAL/restBDC/validarEspaguetti?cadena=${street}`;
     return getHttpAuth(BDC_URL, path).then(res => {
         console.log(res);
-        return JSON.parse(res);
+        return JSON.parse(res)[0];
     })
 };
 
