@@ -94,19 +94,29 @@ const planCoordinates = (x = '442879' , y = '4475446') => {
     const path = `RPGCS_RSPLAN/rest/getInfo.iam?x=${x}&y=${y}`;
     return getHttp(PLAN_URL, path).then(res => {
         console.log(res);
-       return JSON.parse(res);
+        return JSON.parse(res);
     })
 };
 
-const planFuzzy = (calle) => {
+const planAddress = (claseVia = 'calle', nomVia = 'mayor', num = '2') => {
+    const path = `RPGCS_RSPLAN/rest/getInfo.iam?claseVia=${claseVia}&nomVia=${nomVia}&tipoApp=N&num=${num}&calif=`;
+    return getHttp(PLAN_URL, path).then(res => {
+        console.log(res);
+        return JSON.parse(res);
+    })
+};
 
-    const path = `BDCTR_RSGENERAL/restBDC/validarEspaguetti?cadena=${calle}`;
+const planFuzzy = street => {
+
+    const path = `BDCTR_RSGENERAL/restBDC/validarEspaguetti?cadena=${street}`;
     return getHttpAuth(PLAN_URL, path).then(res => {
         console.log(res);
-       return JSON.parse(res);
+        return JSON.parse(res);
     })
-}
+};
 
 module.exports = {
-  planCoordinates,
+    planCoordinates,
+    planAddress,
+    planFuzzy,
 };
