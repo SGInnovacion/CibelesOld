@@ -1,6 +1,7 @@
 const { getHttp } = require('./utils');
 
 const PLAN_URL = 'http://www-2.munimadrid.es';
+const BDC_URL = 'http://www-j.munimadrid.es';
 
 const planCoordinates = (x = '442879' , y = '4475446') => {
     // RESPONSE EXAMPLE
@@ -107,9 +108,8 @@ const planAddress = (claseVia = 'calle', nomVia = 'mayor', num = '2') => {
 };
 
 const planFuzzy = street => {
-
     const path = `BDCTR_RSGENERAL/restBDC/validarEspaguetti?cadena=${street}`;
-    return getHttpAuth(PLAN_URL, path).then(res => {
+    return getHttpAuth(BDC_URL, path).then(res => {
         console.log(res);
         return JSON.parse(res);
     })
