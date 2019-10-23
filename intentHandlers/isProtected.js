@@ -6,10 +6,9 @@ module.exports = (agent) => {
 
     console.log('[INFO] is protected request handler: ?');
     console.log(agent.parameters);
-
     let street = agent.parameters.address || 'alcala 23';
 
-    planFuzzy(street).then( a => {
+    return planFuzzy(street).then( a => {
         console.log(a);
         let item = direcciones.find(item => item.COD_NDP == a.codigoNdps);
         console.log(item);
@@ -18,17 +17,13 @@ module.exports = (agent) => {
         console.log(item);
         console.log(x);
         console.log(y);
-        let response = planCoordinates(x,y).then(response => {
-        	protection = response.patrimonioHistorico[0].clase
+        return planCoordinates(x,y).then(response => {
+        	console.log(response);
+        	protection = response.patrimonioHistorico ? response.patrimonioHistorico[0].clase : 'nula'
+        	
         	agent.add(`La protección de ${street} es ${protection}`)
         }).catch( e => {
         	console.log(e.message)
         })
-
-
     })
-        // .catch( e => {
-        // 	console.log(e.message)
-        // })
-
 };

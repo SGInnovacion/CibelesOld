@@ -109,7 +109,7 @@ const planAddress = (claseVia = 'calle', nomVia = 'mayor', num = '2') => {
 
 const planFuzzy = street => {
     const path = `/BDCTR_RSGENERAL/restBDC/validarEspaguetti?cadena=${street}`;
-    return getHttpAuth(BDC_URL, path).then(res => {
+    return getHttp(BDC_URL, path).then(res => {
         console.log('inside planFuzzy');
         console.log(res);
         return JSON.parse(res)[0];

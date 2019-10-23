@@ -50,32 +50,11 @@ const recordQuery = (agent, intent) => {
     agent.setContext(context);
 };
 
-const getHttp = (url, query) => {
-    return new Promise((resolve, reject) => {
-        const request = http.get(`${url}/${query}`, response => {
-
-            console.log(response);
-            response.setEncoding('binary');
-            let returnData = '';
-
-            if (response.statusCode < 200 || response.statusCode >= 300) {
-                return reject(new Error(`${response.statusCode}: ${response.req.getHeader('host')} ${response.req.path}`));
-            }
-            response.on('data', chunk => {
-                returnData += chunk;
-            });
-            response.on('end', () => resolve(returnData));
-            response.on('error', error => reject(error));
-        });
-        request.end();
-    });
-};
-
-const getHttpAuth = (url, query, username = 'DUINNOVA', passw = 'Texeira1656') => {
+const getHttp = (url, query, username = 'DUINNOVA', passw = 'Texeira1656') => {
     return new Promise((resolve, reject) => {
         const options = {
-            host: url,
-            path: query,
+            host: encodeURI(url),
+            path: encodeURI(query),
             headers: {
                 'Authorization': 'Basic ' + Buffer.from(username + ':' + passw).toString('base64')
             }
@@ -105,6 +84,5 @@ const getHttpAuth = (url, query, username = 'DUINNOVA', passw = 'Texeira1656') =
 module.exports = {
     dynamoRecord,
     recordQuery,
-    getHttp,
-    getHttpAuth
+    getHttp
 };
