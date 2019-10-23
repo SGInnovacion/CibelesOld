@@ -1,4 +1,4 @@
-const { getHttp } = require('./utils');
+const { getHttp, getHttpAuth } = require('./utils');
 
 const PLAN_URL = 'http://www-2.munimadrid.es';
 const BDC_URL = 'http://www-j.munimadrid.es';
