@@ -100,51 +100,6 @@ const getHttpAuth = (url, query, username = 'DUINNOVA', passw = 'Texeira1656') =
     });
 };
 
-const getHttpAuth2 = (url, query, username = 'DUINNOVA', passw = 'Texeira1656') => {
-    return new Promise((resolve, reject) => {
-        const options = {
-            headers: {
-                'Authorization': 'Basic ' + Buffer.from(username + ':' + passw).toString('base64')
-            }
-        };
-
-        const request = require('request'),
-            username = username,
-            password = passw,
-            url = url,
-            auth = "Basic " + new Buffer(username + ":" + password).toString("base64");
-
-        request(
-            {
-                url : url,
-                headers : {
-                    "Authorization" : auth
-                }
-            },
-            function (error, response, body) {
-                console.log(response);
-                console.log(body);
-                response.setEncoding('binary');
-                let returnData = '';
-
-                if (response.statusCode < 200 || response.statusCode >= 300) {
-                    return reject(new Error(`${response.statusCode}: ${response.req.getHeader('host')} ${response.req.path}`));
-                }
-                response.on('data', chunk => {
-                    returnData += chunk;
-                });
-                // response.on('end', () => resolve(returnData));
-                // response.on('error', error => {
-                //     console.log(error);
-                //     reject(error)});
-            }
-        );
-    });
-};
-
-
-
-
 module.exports = {
     dynamoRecord,
     recordQuery,
