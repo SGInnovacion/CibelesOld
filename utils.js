@@ -53,7 +53,7 @@ const recordQuery = (agent, intent) => {
 const getHttp = (url, query) => {
     return new Promise((resolve, reject) => {
         const request = http.get(`${url}/${query}`, response => {
-            
+
             console.log(response);
             response.setEncoding('binary');
             let returnData = '';
@@ -74,13 +74,13 @@ const getHttp = (url, query) => {
 const getHttpAuth = (url, query, username = 'DUINNOVA', passw = 'Texeira1656') => {
     return new Promise((resolve, reject) => {
         const options = {
-        headers: {
-          'Authorization': 'Basic ' + Buffer.from(username + ':' + passw).toString('base64')
-        }
-      };
+            headers: {
+                'Authorization': 'Basic ' + Buffer.from(username + ':' + passw).toString('base64')
+            }
+        };
 
         const request = http.get(`${url}/${query}`, options, response => {
-            
+
             console.log(response);
             response.setEncoding('binary');
             let returnData = '';
@@ -92,11 +92,56 @@ const getHttpAuth = (url, query, username = 'DUINNOVA', passw = 'Texeira1656') =
                 returnData += chunk;
             });
             response.on('end', () => resolve(returnData));
-            response.on('error', error => reject(error));
+            response.on('error', error => {
+                console.log(error);
+                reject(error)});
         });
         request.end();
     });
 };
+
+const getHttpAuth2 = (url, query, username = 'DUINNOVA', passw = 'Texeira1656') => {
+    return new Promise((resolve, reject) => {
+        const options = {
+            headers: {
+                'Authorization': 'Basic ' + Buffer.from(username + ':' + passw).toString('base64')
+            }
+        };
+
+        const request = require('request'),
+            username = username,
+            password = passw,
+            url = url,
+            auth = "Basic " + new Buffer(username + ":" + password).toString("base64");
+
+        request(
+            {
+                url : url,
+                headers : {
+                    "Authorization" : auth
+                }
+            },
+            function (error, response, body) {
+                console.log(response);
+                console.log(body);
+                response.setEncoding('binary');
+                let returnData = '';
+
+                if (response.statusCode < 200 || response.statusCode >= 300) {
+                    return reject(new Error(`${response.statusCode}: ${response.req.getHeader('host')} ${response.req.path}`));
+                }
+                response.on('data', chunk => {
+                    returnData += chunk;
+                });
+                // response.on('end', () => resolve(returnData));
+                // response.on('error', error => {
+                //     console.log(error);
+                //     reject(error)});
+            }
+        );
+    });
+};
+
 
 
 
