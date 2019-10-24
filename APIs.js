@@ -107,10 +107,18 @@ const planAddress = (claseVia = 'calle', nomVia = 'mayor', num = '2') => {
     })
 };
 
-const planFuzzy = street => {
+const planNdp = (ndp = '11138219') => {
+    const path = `/RPGCS_RSPLAN/rest/getInfo.iam?idNdp=${ndp}`;
+    return getHttp(PLAN_URL, path).then(res => {
+        console.log(res);
+        return JSON.parse(res);
+    })
+};
+
+const bdcSearch = street => {
     const path = `/BDCTR_RSGENERAL/restBDC/validarEspaguetti?cadena=${street}`;
     return getHttp(BDC_URL, path).then(res => {
-        console.log('inside planFuzzy');
+        console.log('inside bdcSearch');
         console.log(res);
         return JSON.parse(res)[0];
     })
@@ -119,5 +127,6 @@ const planFuzzy = street => {
 module.exports = {
     planCoordinates,
     planAddress,
-    planFuzzy,
+    planNdp,
+    bdcSearch: bdcSearch,
 };
