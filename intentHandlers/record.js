@@ -11,7 +11,7 @@ module.exports = (agent) => {
         let NDP = a.codigoNdps;
         return planeamientoNdp(NDP).then(response => {
             console.log(response);
-            const current = response.parcela.exptePlaneamientoVigente && response.parcela.exptePlaneamientoVigente.length > 0 ? response.parcela.exptePlaneamientoVigente : false;
+            const current = response.parcela.exptePlaneamientoVigente && response.parcela.exptePlaneamientoVigente.length > 0 ? response.parcela.exptePlaneamientoVigente[0] : false;
             const lastRecord = response.historicoExpedientes && response.historicoExpedientes.expedsHcosPlan && response.historicoExpedientes.expedsHcosPlan.length > 0 ?
                 response.historicoExpedientes.expedsHcosPlan[0] : false;
 
