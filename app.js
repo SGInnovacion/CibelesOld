@@ -14,7 +14,9 @@ const router = express.Router();
 
 const { recordQuery } = require('./utils');
 const correctRequest = require('./intentHandlers/correctRequest');
-const isProtected = require('./intentHandlers/isProtected')
+const protection = require('./intentHandlers/protection');
+const record = require('./intentHandlers/record');
+const use = require('./intentHandlers/use');
 const { planeamientoCoordinates } = require('./APIs');
 
 router.use(compression());
@@ -40,7 +42,7 @@ router.post('/', (request, response) => {
     const generalInfo = agent => recordQuery(agent, "General Info");
     // const isProtected = agent => recordQuery(agent, "Is protected");
     const regulations = agent => recordQuery(agent, "Regulations");
-    const use = agent => recordQuery(agent, "Use");
+    // const use = agent => recordQuery(agent, "Use");
     const urbanRecord = agent => recordQuery(agent, "Urban record");
 
 
@@ -53,9 +55,9 @@ router.post('/', (request, response) => {
     intentMap.set('Activity', activity);
     intentMap.set('Edificability', edificability);
     intentMap.set('General Info', generalInfo);
-    intentMap.set('Is protected', isProtected);
+    intentMap.set('Protection.general', protection);
     intentMap.set('Regulations', regulations);
-    intentMap.set('Urban record', urbanRecord);
+    intentMap.set('Record', record);
     intentMap.set('Use', use);
     agent.handleRequest(intentMap);
 });
