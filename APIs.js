@@ -3,7 +3,7 @@ const { getHttp, getHttpAuth } = require('./utils');
 const PLAN_URL = 'www-2.munimadrid.es';
 const BDC_URL = 'www-j.munimadrid.es';
 
-const planCoordinates = (x = '442879' , y = '4475446') => {
+const planeamientoCoordinates = (x = '442879' , y = '4475446') => {
     // RESPONSE EXAMPLE
     /*  {
         "codigo": 0,
@@ -99,7 +99,7 @@ const planCoordinates = (x = '442879' , y = '4475446') => {
     })
 };
 
-const planAddress = (claseVia = 'calle', nomVia = 'mayor', num = '2') => {
+const planeamientoAddress = (claseVia = 'calle', nomVia = 'mayor', num = '2') => {
     const path = `/RPGCS_RSPLAN/rest/getInfo.iam?claseVia=${claseVia}&nomVia=${nomVia}&tipoApp=N&num=${num}&calif=`;
     return getHttp(PLAN_URL, path).then(res => {
         console.log(res);
@@ -107,7 +107,7 @@ const planAddress = (claseVia = 'calle', nomVia = 'mayor', num = '2') => {
     })
 };
 
-const planNdp = (ndp = '11138219') => {
+const planeamientoNdp = (ndp = '11138219') => {
     const path = `/RPGCS_RSPLAN/rest/getInfo.iam?idNdp=${ndp}`;
     return getHttp(PLAN_URL, path).then(res => {
         console.log(res);
@@ -125,8 +125,8 @@ const bdcSearch = street => {
 };
 
 module.exports = {
-    planCoordinates,
-    planAddress,
-    planNdp,
+    planeamientoCoordinates,
+    planeamientoAddress,
+    planeamientoNdp,
     bdcSearch: bdcSearch,
 };
