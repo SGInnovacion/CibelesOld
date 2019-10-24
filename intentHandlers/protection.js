@@ -11,7 +11,7 @@ module.exports = (agent) => {
         let NDP = a.codigoNdps;
         return planeamientoNdp(NDP).then(response => {
         	console.log(response);
-        	const { catalogo } = response;
+        	const catalogo = response.catalogo;
         	const patrimonioHistorico = response.patrimonioHistorico;
         	const perteneceArrabalFelipeII = response.parcela.perteneceArrabalFelipeII === 'true';
         	const perteneceAPE0001 = response.parcela.perteneceAPE0001 === 'true';
