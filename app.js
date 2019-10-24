@@ -30,7 +30,7 @@ router.post('/', (request, response) => {
     const welcome = agent => {
         return planCoordinates().then(res => {
             console.log(res);
-            agent.add('Bienvenido al Webhook de AWS. ' + res.mensaje);
+            agent.add('Hola \ud83d, ¿En qué te puedo ayudar hoy?');
         });
     };
     const fallback = agent => recordQuery(agent, "Default fallback");
