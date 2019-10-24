@@ -14,7 +14,7 @@ const router = express.Router();
 
 const { recordQuery } = require('./utils');
 const correctRequest = require('./intentHandlers/correctRequest');
-const isProtected = require('./intentHandlers/isProtected')
+const protection = require('./intentHandlers/protection');
 const { planeamientoCoordinates } = require('./APIs');
 
 router.use(compression());
@@ -53,7 +53,7 @@ router.post('/', (request, response) => {
     intentMap.set('Activity', activity);
     intentMap.set('Edificability', edificability);
     intentMap.set('General Info', generalInfo);
-    intentMap.set('Is protected', isProtected);
+    intentMap.set('Protection.general', protection);
     intentMap.set('Regulations', regulations);
     intentMap.set('Urban record', urbanRecord);
     intentMap.set('Use', use);
