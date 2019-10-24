@@ -1,4 +1,4 @@
-const {planNdp, bdcSearch} = require('../APIs');
+const {planeamientoNdp, bdcSearch} = require('../APIs');
 
 var direcciones = require('../src/direcciones');
 
@@ -18,7 +18,7 @@ module.exports = (agent) => {
         // console.log(item);
         // console.log(x);
         // console.log(y);
-        return planNdp(NDP).then(response => {
+        return planeamientoNdp(NDP).then(response => {
         	console.log(response);
         	protection = response.patrimonioHistorico && response.patrimonioHistorico[0] ? response.patrimonioHistorico[0].clase : 'nula'
 
