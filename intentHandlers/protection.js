@@ -21,10 +21,10 @@ const general = agent => {
             console.log('[INFO] Pertenece felipe o ape:');
             console.log(perteneceArrabalFelipeII, perteneceAPE0001);
             let speechText = '';
-            const anyCatalogue = Object.keys(catalogo).find( key => catalogo[key].proteccionActual !== undefined);
+            const anyCatalogue = Object.keys(catalogo).find( key => catalogo[key] !== [] && catalogo[key][0] && catalogo[key][0].proteccionActual !== undefined);
             const affectedPatrimonio = patrimonioHistorico && patrimonioHistorico.length !== 0;
 
-            speechText += anyCatalogue ? `La protección del edificio como ${anyCatalogue} es ${catalogo[anyCatalogue].proteccionActual} ` : 'El edificio no está protegido ';
+            speechText += anyCatalogue ? `La protección del edificio como ${anyCatalogue} es ${catalogo[anyCatalogue][0].proteccionActual} ` : 'El edificio no está protegido ';
             speechText += affectedPatrimonio ? 'y está afectado por patrimonio de la Comunidad de Madrid. '
                 : 'y no está afectado por patrimonio de la Comunidad de Madrid. ';
 
