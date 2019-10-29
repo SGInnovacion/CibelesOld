@@ -32,12 +32,16 @@ module.exports = (agent) => {
             console.log(area);
 
             let speechText = '';
+            El ámbito de esta dirección es UZP.3.01. Su denominación
+es Desarrollo del Este - Ensanche de Vallecas y su uso es (habría que buscar el uso en especifico, como cuando se busca uso).
+
 
             if (zonaUrbanistica != "---") {
                 speechText += `${street} pertenece a la zona urbanística ${zonaUrbanistica}.`
             }
-            speechText += `  La etiqueta del ámbito es ${ambitoEtiqueta}.`
-            speechText += ` Además, en ${street} se puede construir ${area} metros cuadrados`
+            speechText += ` El ámbito de ${street} es ${ambitoEtiqueta}`
+            speechText += ` y su denominación es ${ambitoDenominacion}.`
+            speechText += ` Además, se puede construir ${area} metros cuadrados`
             
         	agent.add(speechText);
 
