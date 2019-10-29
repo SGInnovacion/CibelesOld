@@ -1,7 +1,6 @@
 const { planeamientoNdp, bdcSearch } = require('../APIs');
 
 const general = agent => {
-
     console.log('[INFO] is protected request handler: ?');
     console.log(agent.parameters);
     let street = agent.parameters.address || 'alcala 23';
@@ -87,8 +86,47 @@ const ape = agent => {
     })
 };
 
+const catalogue = agent => {
+    console.log('[INFO] is protected.catalogue request handler: ?');
+    console.log(agent.parameters);
+    let street = agent.parameters.address || 'alcala 23';
+
+    return bdcSearch(street).then(a => {
+        console.log(a);
+        let NDP = a.codigoNdps;
+        return planeamientoNdp(NDP).then(response => {
+            console.log(response);
+            const catalogo = response.catalogo;
+            console.log('[INFO] Catalogo');
+            console.log(catalogo);
+            let speechText = `La protección de ${street} `;
+            const protectedCat = Object.keys(catalogo).filter( key => {
+                try{
+                    console.log(catalogo[key][0].proteccionActual)
+                } catch (e) {
+                    console.log(e);
+                }
+                return catalogo[key] !== [] && catalogo[key][0] && catalogo[key][0].proteccionActual !== undefined;
+            });
+            console.log('[INFO] Protected cat:');
+            console.log(protectedCat);
+            if (protectedCat !== undefined && protectedCat.length > 0) {
+                protectedCat.map( (category, i) => speechText += `${i === protectedCat.length - 1 && protectedCat.length > 1 ? 'y ' : ', '} como ${category} es ${catalogo[category][0].proteccionActual}`);
+            } else {
+                speechText = 'El edificio no está protegido.'
+            }
+            console.log('[INFO] Speechtext')
+            console.log(speechText);
+            agent.add(speechText);
+        }).catch( e => {
+            console.log(e.message)
+        })
+    })
+};
+
 module.exports = {
     general,
     felipe,
     ape,
+    catalogue,
 };

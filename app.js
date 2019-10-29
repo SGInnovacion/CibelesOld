@@ -56,6 +56,7 @@ router.post('/', (request, response) => {
     intentMap.set('General request', generalRequest);
     intentMap.set('Edificability', edificability);
     intentMap.set('General Info', generalInfo);
+    intentMap.set('Protection.catalogue', protection.catalogue);
     intentMap.set('Protection.general', protection.general);
     intentMap.set('Protection.felipe', protection.felipe);
     intentMap.set('Protection.ape', protection.ape);
