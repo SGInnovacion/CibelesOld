@@ -65,7 +65,30 @@ const felipe = agent => {
     })
 };
 
+const ape = agent => {
+    console.log('[INFO] Protection.ape request handler: ');
+    console.log(agent.parameters);
+    let street = agent.parameters.address || 'alcala 23';
+
+    return bdcSearch(street).then(a => {
+        console.log(a);
+        let NDP = a.codigoNdps;
+        return planeamientoNdp(NDP).then(response => {
+            console.log(response);
+            const perteneceAPE0001 = response.parcela.perteneceAPE0001 === 'true';
+            console.log('[INFO] Pertenece ape:');
+            console.log(perteneceAPE0001);
+            const speechText = perteneceAPE0001 ? `Sí, ${street} pertenece al APE0001.` : `No, ${street} no pertenece al APE0001.`;
+            console.log(speechText);
+            agent.add(speechText);
+        }).catch( e => {
+            console.log(e.message)
+        })
+    })
+};
+
 module.exports = {
     general,
-    felipe
+    felipe,
+    ape,
 };
