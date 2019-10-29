@@ -26,6 +26,7 @@ router.use(bodyParser.urlencoded({ extended: true }));
 router.use(awsServerlessExpressMiddleware.eventContext());
 
 router.post('/', (request, response) => {
+    console.log(request);
     const agent = new WebhookClient({ request, response });
 
     // As handler logic grows please move to intentHandlers/ folder as done with correctRequest.js
@@ -55,7 +56,8 @@ router.post('/', (request, response) => {
     intentMap.set('Activity', activity);
     intentMap.set('Edificability', edificability);
     intentMap.set('General Info', generalInfo);
-    intentMap.set('Protection.general', protection);
+    intentMap.set('Protection.general', protection.general);
+    intentMap.set('Protection.felipe', protection.felipe);
     intentMap.set('Regulations', regulations);
     intentMap.set('Record', record);
     intentMap.set('Use', use);
