@@ -53,7 +53,6 @@ router.post('/', (request, response) => {
     intentMap.set('Default Fallback', fallback);
     intentMap.set('Correct request', correctRequest);
     intentMap.set('General request', generalRequest);
-    intentMap.set('Activity', activity);
     intentMap.set('Edificability', edificability);
     intentMap.set('General Info', generalInfo);
     intentMap.set('Protection.general', protection.general);
