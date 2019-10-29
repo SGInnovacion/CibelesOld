@@ -12,7 +12,7 @@ module.exports = (agent) => {
         return planeamientoNdp(NDP).then(response => {
         	console.log(response);
 
-            area = response.parcela.usos.usoEdificabilidad
+            area = response.parcela.usos[0].usoEdificabilidad
             console.log('[INFO] Area');
             console.log(area);
             
