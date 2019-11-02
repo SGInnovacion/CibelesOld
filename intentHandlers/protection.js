@@ -1,9 +1,6 @@
 const { planeamientoNdp, bdcSearch } = require('../APIs');
 
-const general = agent => {
-    console.log('[INFO] is protected request handler: ?');
-    console.log(agent.parameters);
-    let street = agent.parameters.address || 'alcala 23';
+const general = street => {
 
     return bdcSearch(street).then(a => {
         console.log(a);
@@ -35,18 +32,14 @@ const general = agent => {
             } else if(perteneceArrabalFelipeII) {
                 speechText += 'Además, pertenece al Arrabal de Felipe II.';
             }
-            agent.add(speechText);
+            return speechText;
         }).catch( e => {
             console.log(e.message)
         })
     })
 };
 
-const felipe = agent => {
-    console.log('[INFO] Protection.felipe request handler: ');
-    console.log(agent.parameters);
-    let street = agent.parameters.address || 'alcala 23';
-
+const felipe = street => {
     return bdcSearch(street).then(a => {
         console.log(a);
         let NDP = a.codigoNdps;
@@ -57,18 +50,14 @@ const felipe = agent => {
             console.log(perteneceArrabalFelipeII);
             const speechText = perteneceArrabalFelipeII ? `Sí, ${street} pertenece al Arrabal de Felipe II.` : `No, ${street} no pertenece al Arrabal de Felipe II.`;
             console.log(speechText);
-            agent.add(speechText);
+            return speechText;
         }).catch( e => {
             console.log(e.message)
         })
     })
 };
 
-const ape = agent => {
-    console.log('[INFO] Protection.ape request handler: ');
-    console.log(agent.parameters);
-    let street = agent.parameters.address || 'alcala 23';
-
+const ape = street => {
     return bdcSearch(street).then(a => {
         console.log(a);
         let NDP = a.codigoNdps;
@@ -79,18 +68,14 @@ const ape = agent => {
             console.log(perteneceAPE0001);
             const speechText = perteneceAPE0001 ? `Sí, ${street} pertenece al APE0001.` : `No, ${street} no pertenece al APE0001.`;
             console.log(speechText);
-            agent.add(speechText);
+            return speechText;
         }).catch( e => {
             console.log(e.message)
         })
     })
 };
 
-const catalogue = agent => {
-    console.log('[INFO] is protected.catalogue request handler: ?');
-    console.log(agent.parameters);
-    let street = agent.parameters.address || 'alcala 23';
-
+const catalogue = street => {
     return bdcSearch(street).then(a => {
         console.log(a);
         let NDP = a.codigoNdps;
@@ -117,7 +102,7 @@ const catalogue = agent => {
             }
             console.log('[INFO] Speechtext')
             console.log(speechText);
-            agent.add(speechText);
+            return speechText;
         }).catch( e => {
             console.log(e.message)
         })

@@ -1,16 +1,11 @@
 const { planeamientoNdp, bdcSearch } = require('../APIs');
 
-module.exports = (agent) => {
+module.exports = (street) => {
 
 // Normativa:
 // - Registro: zona urbanistica
 // - Derivar al ambito
-// - Metros cuadrados, xómo los puedes contruir (max altura etc)
-
-
-    console.log('[INFO] regulations request handler');
-    console.log(agent.parameters);
-    let street = agent.parameters.address || 'alcala 23';
+// - Metros cuadrados, cómo los puedes contruir (max altura etc)
 
     return bdcSearch(street).then(a => {
         console.log(a);
@@ -32,15 +27,15 @@ module.exports = (agent) => {
             console.log(area);
 
             let speechText = '';
-            
+
             if (zonaUrbanistica != "---") {
                 speechText += `${street} pertenece a la zona urbanística ${zonaUrbanistica}.`
             }
             speechText += ` El ámbito de ${street} es ${ambitoEtiqueta}`
             speechText += ` y su denominación es ${ambitoDenominacion}.`
             speechText += ` Además, se puede construir ${area} metros cuadrados`
-            
-        	agent.add(speechText);
+
+        	return speechText;
 
 
         }).catch( e => {

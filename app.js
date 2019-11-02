@@ -14,12 +14,12 @@ const router = express.Router();
 
 const { recordQuery } = require('./utils');
 const correctRequest = require('./intentHandlers/correctRequest');
-const protection = require('./intentHandlers/protection');
-const record = require('./intentHandlers/record');
-const use = require('./intentHandlers/use');
-const regulations = require('./intentHandlers/regulations');
+const getProtection = require('./intentHandlers/protection');
+const getRecord = require('./intentHandlers/record');
+const getUse = require('./intentHandlers/use');
+const getRegulations = require('./intentHandlers/regulations');
 const getEdificability = require('./intentHandlers/edificability');
-const generalInfo = require('./intentHandlers/generalInfo')
+const getGeneralInfo = require('./intentHandlers/generalInfo')
 const { planeamientoCoordinates } = require('./APIs');
 
 router.use(compression());
@@ -41,6 +41,7 @@ router.post('/', (request, response) => {
     };
     const fallback = agent => recordQuery(agent, "Default fallback");
     const generalRequest = agent => recordQuery(agent, "General request");
+
     async function edificability(agent){
         const street = agent.parameters.address || 'alcalá 23';
         console.log(street);
@@ -48,24 +49,82 @@ router.post('/', (request, response) => {
         console.log(out);
         agent.add(out);
     };
-    // const generalInfo = agent => recordQuery(agent, "General Info");
-    // const isProtected = agent => recordQuery(agent, "Is protected");
-    // const regulations = agent => recordQuery(agent, "Regulations");
-    // const use = agent => recordQuery(agent, "Use");
 
+    async function regulations(agent){
+        const street = agent.parameters.address || 'alcalá 23';
+        console.log(street);
+        let out = await getRegulations(street);
+        console.log(out);
+        agent.add(out);
+    };
+
+    async function record(agent){
+        const street = agent.parameters.address || 'alcalá 23';
+        console.log(street);
+        let out = await getRecord(street);
+        console.log(out);
+        agent.add(out);
+    };
+
+    async function use(agent){
+        const street = agent.parameters.address || 'alcalá 23';
+        console.log(street);
+        let out = await getUse(street);
+        console.log(out);
+        agent.add(out);
+    };
+
+    async function generalInfo(agent){
+        const street = agent.parameters.address || 'alcalá 23';
+        console.log(street);
+        let out = await getGeneralInfo(street);
+        console.log(out);
+        agent.add(out);
+    };
+
+    async function protectionCatalogue(agent){
+        const street = agent.parameters.address || 'alcalá 23';
+        console.log(street);
+        let out = await getProtection.catalogue(street);
+        console.log(out);
+        agent.add(out);
+    }
+
+    async function protectionGeneral(agent){
+        const street = agent.parameters.address || 'alcalá 23';
+        console.log(street);
+        let out = await getProtection.general(street);
+        console.log(out);
+        agent.add(out);
+    }
+
+    async function protectionFelipe(agent){
+        const street = agent.parameters.address || 'alcalá 23';
+        console.log(street);
+        let out = await getProtection.felipe(street);
+        console.log(out);
+        agent.add(out);
+    }
+
+    async function protectionApe(agent){
+        const street = agent.parameters.address || 'alcalá 23';
+        console.log(street);
+        let out = await getProtection.ape(street);
+        console.log(out);
+        agent.add(out);
+    }
 
     // Run the proper function handler based on the matched Dialogflow intent name
     let intentMap = new Map();
     intentMap.set('Welcome', welcome);
     intentMap.set('Default Fallback', fallback);
-    intentMap.set('Correct request', correctRequest);
     intentMap.set('General request', generalRequest);
     intentMap.set('Edificability', edificability);
     intentMap.set('General Info', generalInfo);
-    intentMap.set('Protection.catalogue', protection.catalogue);
-    intentMap.set('Protection.general', protection.general);
-    intentMap.set('Protection.felipe', protection.felipe);
-    intentMap.set('Protection.ape', protection.ape);
+    intentMap.set('Protection.catalogue', protectionCatalogue);
+    intentMap.set('Protection.general', protectionGeneral);
+    intentMap.set('Protection.felipe', protectionFelipe);
+    intentMap.set('Protection.ape', protectionApe);
     intentMap.set('Regulations', regulations);
     intentMap.set('Record', record);
     intentMap.set('Use', use);

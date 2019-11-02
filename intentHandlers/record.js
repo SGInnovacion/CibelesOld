@@ -1,11 +1,6 @@
 const { planeamientoNdp, bdcSearch } = require('../APIs');
 
-module.exports = (agent) => {
-
-    console.log('[INFO] Expediente (record) request handler: ?');
-    console.log(agent.parameters);
-    let street = agent.parameters.address || 'alcala 23';
-
+module.exports = (street) => {
     return bdcSearch(street).then(a => {
         console.log(a);
         let NDP = a.codigoNdps;
@@ -26,7 +21,7 @@ module.exports = (agent) => {
                 lastRecord ? `El último expediente del histórico en ${street} es el ${lastRecord.numero} con denominación ${lastRecord.denominacion}` :
                     `No dispongo de información sobre expedientes para ${street}`;
 
-            agent.add(speechText);
+            return speechText;
         }).catch( e => {
             console.log(e.message)
         })
