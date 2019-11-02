@@ -18,7 +18,7 @@ const protection = require('./intentHandlers/protection');
 const record = require('./intentHandlers/record');
 const use = require('./intentHandlers/use');
 const regulations = require('./intentHandlers/regulations');
-const edificability = require('./intentHandlers/edificability');
+const getEdificability = require('./intentHandlers/edificability');
 const generalInfo = require('./intentHandlers/generalInfo')
 const { planeamientoCoordinates } = require('./APIs');
 
@@ -41,8 +41,13 @@ router.post('/', (request, response) => {
     };
     const fallback = agent => recordQuery(agent, "Default fallback");
     const generalRequest = agent => recordQuery(agent, "General request");
-    const urbanRecord = agent => recordQuery(agent, "Urban record");
-    // const edificability = agent => recordQuery(agent, "Edificability");
+    async function edificability(agent){
+        const street = agent.parameters.address || 'alcalá 23';
+        console.log(street);
+        let out = await getEdificability(street);
+        console.log(out);
+        agent.add(out);
+    };
     // const generalInfo = agent => recordQuery(agent, "General Info");
     // const isProtected = agent => recordQuery(agent, "Is protected");
     // const regulations = agent => recordQuery(agent, "Regulations");

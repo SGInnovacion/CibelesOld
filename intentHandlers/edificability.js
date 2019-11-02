@@ -1,10 +1,8 @@
 const { planeamientoNdp, bdcSearch } = require('../APIs');
 
-module.exports = (agent) => {
+module.exports = (street) => {
 
     console.log('[INFO] edificability request handler: ?');
-    console.log(agent.parameters);
-    let street = agent.parameters.address || 'alcala 23';
 
     return bdcSearch(street).then(a => {
         console.log(a);
@@ -12,11 +10,11 @@ module.exports = (agent) => {
         return planeamientoNdp(NDP).then(response => {
         	console.log(response);
 
-            area = response.parcela.usos[0].usoEdificabilidad
+            area = response.parcela.usos[0].usoEdificabilidad;
             console.log('[INFO] Area');
             console.log(area);
-            
-        	agent.add(`En ${street} se puede construir ${area} metros cuadrados`);
+
+            return `En ${street} se puede construir ${area} metros cuadrados`
 
 
         }).catch( e => {
