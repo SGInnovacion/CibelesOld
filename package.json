@@ -8,9 +8,9 @@
   "license": "ISC",
   "dependencies": {
     "actions-on-google": "^2.2.0",
-    "ask-sdk-core": "^2.7.0",
-    "aws-sdk": "^2.549.0",
+    "ask-sdk": "^2.7.0",
     "ask-sdk-model": "^1.18.0",
+    "aws-sdk": "^2.549.0",
     "aws-serverless-express": "^3.3.5",
     "body-parser": "^1.18.3",
     "compression": "^1.7.3",

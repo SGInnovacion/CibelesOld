@@ -1,7 +1,9 @@
 // This sample demonstrates handling intents from an Alexa skill using the Alexa Skills Kit SDK (v2).
 // Please visit https://alexa.design/cookbook for additional examples on implementing slots, dialog management,
 // session persistence, api calls, and more.
-const Alexa = require('ask-sdk-core');
+const Alexa = require('ask-sdk');
+const ddbAdapter = require('ask-sdk-dynamodb-persistence-adapter'); // included in ask-sdk
+const ddbTableName = 'CibelesConcept';
 
 const getProtection = require('./intentHandlers/protection');
 const getRecord = require('./intentHandlers/record');
@@ -17,17 +19,45 @@ const alexaSpeak = (handlerInput, speech, reprompt = speech) => handlerInput.res
 
 async function parseAlexa(handlerInput, intentHandler){
     const { Street, Number, Calificator } = handlerInput.requestEnvelope.request.intent.slots;
-    const address = `${Street.value} ${Number.value}${Calificator.value !== undefined? Calificator.value : ''}`;
+    let address = 'Alcalá 23';
+    if(Street.value !== undefined && Number.value !== undefined){
+        address = `${Street.value} ${Number.value}${Calificator.value !== undefined? Calificator.value : ''}`;
+        setSessionStreet(handlerInput, address);
+    } else {
+        address = handlerInput.attributesManager.getSessionAttributes().street;
+    }
     const out = await intentHandler(address);
     return alexaSpeak(handlerInput, out);
 }
+
+function getPersistenceAdapter(tableName) {
+    // Not in Alexa Hosted Environment
+    return new ddbAdapter.DynamoDbPersistenceAdapter({
+        tableName: tableName,
+        createTable: true,
+    });
+}
+
+function setSessionStreet(handlerInput, street){
+    handlerInput.attributesManager.setSessionAttributes({street: street})
+}
+
 
 const LaunchRequestHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest';
     },
-    handle(handlerInput) {
-        const speakOutput = `Hola, Soy Cibeles, el servicio de búsqueda urbanística del Ayuntamiento de Madrid. Puedo responder a tus consultas sobre edificabilidad, protección, normativa, usos o expedientes. Dime la categoría sobre la que quieres preguntar para que té de una explicación más detallada, o pregúntame directamente. Por ejemplo: ¿Qué puedo construir en la parcela RC1 del APE 02 27?`;
+    async handle(handlerInput) {
+        const { attributesManager } = handlerInput;
+        const attributes = await attributesManager.getPersistentAttributes() || {};
+        let speakOutput = `Hola, Soy Cibeles, el servicio de búsqueda urbanística del Ayuntamiento de Madrid. Puedo responder a tus consultas sobre edificabilidad, protección, normativa, usos o expedientes. Dime la categoría sobre la que quieres preguntar para que té de una explicación más detallada, o pregúntame directamente. Por ejemplo: ¿Qué puedo construir en la parcela RC1 del APE 02 27?`;
+
+        if(Object.keys(attributes).length > 0){
+            attributesManager.setSessionAttributes(attributes);
+            console.log(attributes);
+            speakOutput = `Bienvenido de nuevo, puedo seguir informándote sobre ${attributes.street} o puedes consultarme sobre una dirección nueva`;
+        }
+
         return handlerInput.responseBuilder
             .speak(speakOutput)
             .reprompt(speakOutput)
@@ -77,8 +107,11 @@ const SessionEndedRequestHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'SessionEndedRequest';
     },
-    handle(handlerInput) {
+    async handle(handlerInput) {
         // Any cleanup logic goes here.
+        let street = handlerInput.attributesManager.getSessionAttributes().street;
+        handlerInput.attributesManager.setPersistentAttributes({street: street});
+        await handlerInput.attributesManager.savePersistentAttributes();
         return handlerInput.responseBuilder.getResponse();
     }
 };
@@ -117,6 +150,7 @@ const ErrorHandler = {
 // payloads to the handlers above. Make sure any new handlers or interceptors you've
 // defined are included below. The order matters - they're processed top to bottom.
 exports.handler = Alexa.SkillBuilders.custom()
+    .withPersistenceAdapter(getPersistenceAdapter(ddbTableName))
     .addRequestHandlers(
         LaunchRequestHandler,
         HelloWorldIntentHandler,
