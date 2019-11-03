@@ -16,7 +16,7 @@ const getRecord = require('./intentHandlers/record');
 const getUse = require('./intentHandlers/use');
 const getRegulations = require('./intentHandlers/regulations');
 const getEdificability = require('./intentHandlers/edificability');
-const getGeneralInfo = require('./intentHandlers/generalInfo')
+const getGeneralInfo = require('./intentHandlers/generalInfo');
 
 router.use(compression());
 router.use(cors());

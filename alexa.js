@@ -3,6 +3,25 @@
 // session persistence, api calls, and more.
 const Alexa = require('ask-sdk-core');
 
+const getProtection = require('./intentHandlers/protection');
+const getRecord = require('./intentHandlers/record');
+const getUse = require('./intentHandlers/use');
+const getRegulations = require('./intentHandlers/regulations');
+const getEdificability = require('./intentHandlers/edificability');
+const getGeneralInfo = require('./intentHandlers/generalInfo');
+
+const alexaCanHandle = (handlerInput, intentName) => Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+    && Alexa.getIntentName(handlerInput.requestEnvelope) === intentName;
+
+const alexaSpeak = (handlerInput, speech) => handlerInput.responseBuilder.speak(speech).reprompt(speech).getResponse();
+
+async function parseAlexa(handlerInput, intentHandler){
+    const { Street, Number, Calificator } = handlerInput.requestEnvelope.request.intent.slots;
+    const address = `${Street.value} ${Number.value}${Calificator.value !== undefined? Calificator.value : ''}`;
+    const out = await intentHandler(address);
+    return alexaSpeak(handlerInput, out);
+}
+
 const LaunchRequestHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest';
@@ -16,113 +35,42 @@ const LaunchRequestHandler = {
     }
 };
 const HelloWorldIntentHandler = {
-    canHandle(handlerInput) {
-        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'HelloWorldIntent';
-    },
+    canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'HelloWorldIntent'),
     handle(handlerInput) {
         const speakOutput = `Hola, Soy Cibeles, el servicio de búsqueda urbanística del Ayuntamiento de Madrid. Puedo responder a tus consultas sobreedificabilidad, protección, normativa, usos o expedientes. Dime la categoría sobre la que quieres preguntar para que té de una explicación más detallada, o pregúntame directamente. Por ejemplo: ¿Qué puedo construir en la parcela RC1 del APE 02 27?`;
-
-        return handlerInput.responseBuilder
-            .speak(speakOutput)
-            //.reprompt('add a reprompt if you want to keep the session open for the user to respond')
-            .getResponse();
+        return alexaSpeak(handlerInput, speakOutput);
     }
 };
+
 const EdificabilityIntentHandler = {
-    canHandle(handlerInput) {
-        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'Edificability';
-    },
-    handle(handlerInput) {
-
-        const { requestEnvelope, attributesManager, responseBuilder } = handlerInput;
-        const { Street, Number, Calificator } = requestEnvelope.request.intent.slots;
-
-        const speakOutput = `En la calle Prim 1 se pueden construir 31.913,1 metros cuadrados. Quieres añadir más información a tu consulta? Puedo darte más datos sobre protección, normativa, usos o expedientes. Di el nombre de la categoría para que lo haga. Si has terminado di salir.`;
-        return responseBuilder
-            .speak(speakOutput)
-            .reprompt('Quieres añadir algo más a tu consulta?')
-            .getResponse();
-    }
+    canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Edificability'),
+    handle: (handlerInput) => parseAlexa(handlerInput, getEdificability)
 };
 const ProtectionIntentHandler = {
-    canHandle(handlerInput) {
-        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'Protection';
-    },
-    handle(handlerInput) {
-        const speakOutput = `La protección de Prim 1 como edificio es Integral y está afectado por patrimonio de la Comunidad de Madrid. Además, pertenece al APE0001. Quieres añadir más información a tu consulta? Si no, di salir.`;
-        return handlerInput.responseBuilder
-            .speak(speakOutput)
-            .reprompt('Quieres añadir algo más a tu consulta?')
-            .getResponse();
-    }
+    canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Protection'),
+    handle: (handlerInput) => parseAlexa(handlerInput, getProtection.general)
 };
 const UseIntentHandler = {
-    canHandle(handlerInput) {
-        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'Use';
-    },
-    handle(handlerInput) {
-        const speakOutput = `El uso asociado a calle prim 1 es residencial vivienda colectiva. Quieres añadir más información a tu consulta? Si no, di salir.`;
-        return handlerInput.responseBuilder
-            .speak(speakOutput)
-            .reprompt('Quieres añadir algo más a tu consulta?')
-            .getResponse();
-    }
+    canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Use'),
+    handle: (handlerInput) => parseAlexa(handlerInput, getUse)
 };
 const RegulationsIntentHandler = {
-    canHandle(handlerInput) {
-        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'Regulations';
-    },
-    handle(handlerInput) {
-        const speakOutput = `El ámbito de calle prim 1 es 1.1 y su denominación es ZONA 1 GRADO 1º. Además, se puede construir 2874.92 metros cuadrados. Quieres añadir más información a tu consulta? Si no, di salir.`;
-        return handlerInput.responseBuilder
-            .speak(speakOutput)
-            .reprompt('Quieres añadir algo más a tu consulta?')
-            .getResponse();
-    }
+    canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Regulations'),
+    handle: (handlerInput) => parseAlexa(handlerInput, getRegulations)
 };
 const RecordIntentHandler = {
-    canHandle(handlerInput) {
-        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'Record';
-    },
-    handle(handlerInput) {
-        const speakOutput = `El último expediente del histórico en calle prim 1 es el 135/2018/00678 con denominación Regulación Servicios Terciarios Hospedaje. Quieres añadir más información a tu consulta? Si no, di salir.`;
-        return handlerInput.responseBuilder
-            .speak(speakOutput)
-            .reprompt('Quieres añadir algo más a tu consulta?')
-            .getResponse();
-    }
+    canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Record'),
+    handle: (handlerInput) => parseAlexa(handlerInput, getRecord)
 };
-const HelpIntentHandler = {
-    canHandle(handlerInput) {
-        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.HelpIntent';
-    },
-    handle(handlerInput) {
-        const speakOutput = 'You can say hello to me! How can I help?';
 
-        return handlerInput.responseBuilder
-            .speak(speakOutput)
-            .reprompt(speakOutput)
-            .getResponse();
-    }
+const HelpIntentHandler = {
+    canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'AMAZON.HelpIntent'),
+    handle: (handlerInput) => alexaSpeak(handlerInput,'You can say hello to me! How can I help?')
 };
 const CancelAndStopIntentHandler = {
-    canHandle(handlerInput) {
-        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && (Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.CancelIntent'
-                || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.StopIntent');
-    },
+    canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'AMAZON.CancelIntent') || alexaCanHandle(handlerInput, 'AMAZON.StopIntent'),
     handle(handlerInput) {
-        const speakOutput = 'Goodbye!';
-        return handlerInput.responseBuilder
-            .speak(speakOutput)
-            .getResponse();
+        return alexaSpeak(handlerInput,'Goodbye')
     }
 };
 const SessionEndedRequestHandler = {
