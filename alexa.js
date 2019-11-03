@@ -13,7 +13,7 @@ const getGeneralInfo = require('./intentHandlers/generalInfo');
 const alexaCanHandle = (handlerInput, intentName) => Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
     && Alexa.getIntentName(handlerInput.requestEnvelope) === intentName;
 
-const alexaSpeak = (handlerInput, speech) => handlerInput.responseBuilder.speak(speech).reprompt(speech).getResponse();
+const alexaSpeak = (handlerInput, speech, reprompt = speech) => handlerInput.responseBuilder.speak(speech).reprompt(reprompt).getResponse();
 
 async function parseAlexa(handlerInput, intentHandler){
     const { Street, Number, Calificator } = handlerInput.requestEnvelope.request.intent.slots;
@@ -95,10 +95,7 @@ const IntentReflectorHandler = {
         const intentName = Alexa.getIntentName(handlerInput.requestEnvelope);
         const speakOutput = `You just triggered ${intentName}`;
 
-        return handlerInput.responseBuilder
-            .speak(speakOutput)
-            //.reprompt('add a reprompt if you want to keep the session open for the user to respond')
-            .getResponse();
+        return alexaSpeak(handlerInput, speakOutput)
     }
 };
 
@@ -112,11 +109,7 @@ const ErrorHandler = {
     handle(handlerInput, error) {
         console.log(`~~~~ Error handled: ${error.stack}`);
         const speakOutput = `Sorry, I had trouble doing what you asked. Please try again.`;
-
-        return handlerInput.responseBuilder
-            .speak(speakOutput)
-            .reprompt(speakOutput)
-            .getResponse();
+        return alexaSpeak(handlerInput, speakOutput);
     }
 };
 
