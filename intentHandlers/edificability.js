@@ -18,7 +18,7 @@ module.exports = (street) => {
             if (area === '---'){
                 return `No dispongo de esa información sobre ${street}`
             } else {
-                return `En ${street} se puede construir ${area} metros cuadrados`    
+                return `En ${street} se puede construir ${area.replace(".", ",")} metros cuadrados`    
             }
 
         }).catch( e => {
