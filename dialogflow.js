@@ -39,7 +39,6 @@ router.post('/', (request, response) => {
     }
 
     // Run the proper function handler based on the matched Dialogflow intent name
-    
     let intentMap = new Map();
     intentMap.set('Default Fallback', fallback);
     intentMap.set('Edificability', agent => parseDialog(agent, getEdificability));
