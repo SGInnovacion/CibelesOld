@@ -2,5 +2,5 @@ node_modules
 .idea
 alexa-webhook*
 dialogflow-webhook*
-webhook*
+webhook.zip
 .DS_Store

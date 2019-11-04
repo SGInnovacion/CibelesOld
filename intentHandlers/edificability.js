@@ -11,11 +11,15 @@ module.exports = (street) => {
         	console.log(response);
 
             area = response.parcela.usos[0].usoEdificabilidad;
+            
             console.log('[INFO] Area');
             console.log(area);
 
-            return `En ${street} se puede construir ${area} metros cuadrados`
-
+            if (area === '---'){
+                return `No dispongo de esa información sobre ${street}`
+            } else {
+                return `En ${street} se puede construir ${area} metros cuadrados`    
+            }
 
         }).catch( e => {
         	console.log(e.message)
