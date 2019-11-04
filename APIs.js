@@ -4,7 +4,6 @@ const PLAN_URL = 'www-2.munimadrid.es';
 const BDC_URL = 'www-j.munimadrid.es';
 
 const planeamientoCoordinates = (x = '442879' , y = '4475446') => {
-    // RESPONSE EXAMPLE
     /*  {
         "codigo": 0,
         "mensaje": "Consulta realizada con éxito",
