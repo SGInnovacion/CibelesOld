@@ -75,6 +75,52 @@ const ape = street => {
     })
 };
 
+const bip = street => {
+    return bdcSearch(street).then(a => {
+        console.log(a);
+        let NDP = a.codigoNdps;
+        return planeamientoNdp(NDP).then(response => {
+            console.log(response);
+            const patrimonioHistorico = response.patrimonioHistorico;
+            console.log('[INFO] patrimonioHistorico');
+            console.log(patrimonioHistorico);
+
+            const checkbip = (patrimonio) => patrimonio.categoria.includes("BIP");
+            
+            const speechText = patrimonioHistorico.some(checkbip) ? 
+            `${street} es un Bien de interés patrimonial` : `${street} no es un bien de interés patrimonial`
+            
+            return speechText;
+        }).catch( e => {
+            console.log(e.message)
+        })
+    })
+};
+
+const bic = street => {
+    return bdcSearch(street).then(a => {
+        console.log(a);
+        let NDP = a.codigoNdps;
+        return planeamientoNdp(NDP).then(response => {
+            console.log(response);
+            const patrimonioHistorico = response.patrimonioHistorico;
+            console.log('[INFO] patrimonioHistorico');
+            console.log(patrimonioHistorico);
+            
+            const checkbip = (patrimonio) => patrimonio.categoria.includes("BIC");
+            
+            const speechText = patrimonioHistorico.some(checkbip) ? 
+            `${street} es un Bien de interés cultural` : `${street} no es un bien de interés cultural`
+            
+            return speechText;
+
+            return speechText;
+        }).catch( e => {
+            console.log(e.message)
+        })
+    })
+};
+
 const catalogue = street => {
     return bdcSearch(street).then(a => {
         console.log(a);
@@ -114,4 +160,6 @@ module.exports = {
     felipe,
     ape,
     catalogue,
+    bip,
+    bic,
 };
