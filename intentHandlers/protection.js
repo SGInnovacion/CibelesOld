@@ -2,11 +2,13 @@ const { planeamientoNdp, bdcSearch, getPlaneamiento } = require('../APIs');
 
 const general = async street => {
     let address = (typeof street === 'string') ? await getPlaneamiento(street) : street;
+    console.log(street)
+    console.log(address)
     const response = address.planeamiento;
-    const catalogo = response.planeamiento.catalogo;
-    const patrimonioHistorico = response.planeamiento.patrimonioHistorico;
-    const perteneceArrabalFelipeII = response.planeamiento.parcela.perteneceArrabalFelipeII === 'true';
-    const perteneceAPE0001 = response.planeamiento.parcela.perteneceAPE0001 === 'true';
+    const catalogo = response.catalogo;
+    const patrimonioHistorico = response.patrimonioHistorico;
+    const perteneceArrabalFelipeII = response.parcela.perteneceArrabalFelipeII === 'true';
+    const perteneceAPE0001 = response.parcela.perteneceAPE0001 === 'true';
 
     let speechText = '';
     const anyCatalogue = Object.keys(catalogo).find( key => catalogo[key] !== [] && catalogo[key][0] && catalogo[key][0].proteccionActual !== undefined);
