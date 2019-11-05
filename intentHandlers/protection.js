@@ -12,17 +12,20 @@ const general = async street => {
     const anyCatalogue = Object.keys(catalogo).find( key => catalogo[key] !== [] && catalogo[key][0] && catalogo[key][0].proteccionActual !== undefined);
     const affectedPatrimonio = patrimonioHistorico && patrimonioHistorico.length !== 0;
 
-    speechText += anyCatalogue ? `La protección del edificio como ${anyCatalogue} es ${catalogo[anyCatalogue][0].proteccionActual} ` : 'El edificio no está protegido ';
-    speechText += affectedPatrimonio ? 'y está afectado por patrimonio de la Comunidad de Madrid. '
-        : 'y no está afectado por patrimonio de la Comunidad de Madrid. ';
+    speechText += anyCatalogue ? `${address.parsedStreet} tiene un grado de protección ${catalogo[anyCatalogue][0].proteccionActual} como ${anyCatalogue}` : `${address.parsedStreet} no está protegido `;
+    speechText += affectedPatrimonio ? 'También forma parte del Patrimonio Histórico de la Comunidad de Madrid. '
+        : 'No forma parte del patrimonio de la Comunidad de Madrid. ';
 
     if(perteneceArrabalFelipeII && perteneceAPE0001){
-        speechText += 'Además, pertenece al Arrabal de Felipe II y al APE0001.';
+        speechText += 'Además, pertenece al Arrabal de Felipe II y al APE0001. ';
     } else if(perteneceAPE0001) {
-        speechText += 'Además, pertenece al APE0001.';
+        speechText += 'Además, pertenece al APE0001. ';
     } else if(perteneceArrabalFelipeII) {
-        speechText += 'Además, pertenece al Arrabal de Felipe II.';
+        speechText += 'Además, pertenece al Arrabal de Felipe II. ';
     }
+
+    speechText += '¿Quieres preguntar por el uso, edificabilidad, normativa o expediente en la misma ubicación?'
+
     return speechText;
 };
 
