@@ -1,16 +1,14 @@
 const { planeamientoNdp, bdcSearch } = require('../APIs');
 
-module.exports = (street) => {
-    return bdcSearch(street).then(a => {
-        console.log(a);
-        let NDP = a.codigoNdps;
-        return planeamientoNdp(NDP).then(response => {
-        	console.log(response);
+module.exports = async (street) => {
+            let address = (typeof street === 'string') ? await getPlaneamiento(street) : street;
+        	
+            console.log(address.planeamiento);
 
-            const zonaUrbanistica = response.parcela.zonaUrbanistica;
-            const ambitoEtiqueta = response.parcela.ambitoEtiqueta;
-            const ambitoDenominacion = response.parcela.ambitoDenominacion;
-            const usos = response.parcela.usos;
+            const zonaUrbanistica = address.planeamiento.parcela.zonaUrbanistica;
+            const ambitoEtiqueta = address.planeamiento.parcela.ambitoEtiqueta;
+            const ambitoDenominacion = address.planeamiento.parcela.ambitoDenominacion;
+            const usos = address.planeamiento.parcela.usos;
             console.log('[INFO] ambitoDenominacion');
             console.log(ambitoDenominacion);
             console.log('[INFO] ambitoEtiqueta');
@@ -20,14 +18,10 @@ module.exports = (street) => {
 
             let speechText = '';
 
-            speechText += ` El ámbito de ${street} es ${ambitoEtiqueta}`;
+            speechText += ` El ámbito de ${address.parsedStreet} es ${ambitoEtiqueta}`;
             speechText += ` y su denominación es ${ambitoDenominacion}.`;
             if (usos && usos.length !== 0){
-                speechText += `El uso asociado a ${street} es ${usos[0].usoDenominacion.toLowerCase()}`;
+                speechText += `El uso asociado a ${address.parsedStreet} es ${usos[0].usoDenominacion.toLowerCase()}`;
             };
             return speechText;
-        }).catch( e => {
-        	console.log(e.message)
-        })
-    })
 };
