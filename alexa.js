@@ -118,7 +118,8 @@ const SessionEndedRequestHandler = {
     async handle(handlerInput) {
         // Any cleanup logic goes here.
         let street = handlerInput.attributesManager.getSessionAttributes().street;
-        handlerInput.attributesManager.setPersistentAttributes({street: street});
+        let planeamiento = handlerInput.attributesManager.getSessionAttributes().planeamiento;
+        handlerInput.attributesManager.setPersistentAttributes({street: street, planeamiento: planeamiento});
         await handlerInput.attributesManager.savePersistentAttributes();
         return handlerInput.responseBuilder.getResponse();
     }
