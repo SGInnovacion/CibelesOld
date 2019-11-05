@@ -5,6 +5,8 @@ const Alexa = require('ask-sdk');
 const ddbAdapter = require('ask-sdk-dynamodb-persistence-adapter'); // included in ask-sdk
 const ddbTableName = 'CibelesConcept';
 
+const { planeamientoNdp, bdcSearch, getPlaneamiento } = require('./APIs');
+
 const getProtection = require('./intentHandlers/protection');
 const getRecord = require('./intentHandlers/record');
 const getUse = require('./intentHandlers/use');
@@ -20,13 +22,19 @@ const alexaSpeak = (handlerInput, speech, reprompt = speech) => handlerInput.res
 async function parseAlexa(handlerInput, intentHandler){
     const { Street, Number, Calificator } = handlerInput.requestEnvelope.request.intent.slots;
     let address = 'Alcalá 23';
+    let requestInfo = '';
     if(Street.value !== undefined && Number.value !== undefined){
         address = `${Street.value} ${Number.value}${Calificator.value !== undefined? Calificator.value : ''}`;
-        setSessionStreet(handlerInput, address);
+        requestInfo = await getPlaneamiento(address);
+        setSessionParams(handlerInput, {
+            street: requestInfo.parsedStreet,
+            planeamiento: requestInfo.planeamiento,
+        });
     } else {
-        address = handlerInput.attributesManager.getSessionAttributes().street;
+        let sessionAttrs = handlerInput.attributesManager.getSessionAttributes();
+        requestInfo = { planeamiento: sessionAttrs.planeamiento, parsedStreet: sessionAttrs.street };
     }
-    const out = await intentHandler(address);
+    const out = await intentHandler(requestInfo);
     return alexaSpeak(handlerInput, out);
 }
 
@@ -38,8 +46,8 @@ function getPersistenceAdapter(tableName) {
     });
 }
 
-function setSessionStreet(handlerInput, street){
-    handlerInput.attributesManager.setSessionAttributes({street: street})
+function setSessionParams(handlerInput, params){
+    handlerInput.attributesManager.setSessionAttributes(params)
 }
 
 
@@ -74,23 +82,23 @@ const HelloWorldIntentHandler = {
 
 const EdificabilityIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Edificability'),
-    handle: (handlerInput) => parseAlexa(handlerInput, getEdificability)
+    handle: async (handlerInput) => parseAlexa(handlerInput, getEdificability)
 };
 const ProtectionIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Protection'),
-    handle: (handlerInput) => parseAlexa(handlerInput, getProtection.general)
+    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.general)
 };
 const UseIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Use'),
-    handle: (handlerInput) => parseAlexa(handlerInput, getUse)
+    handle: async (handlerInput) => parseAlexa(handlerInput, getUse)
 };
 const RegulationsIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Regulations'),
-    handle: (handlerInput) => parseAlexa(handlerInput, getRegulations)
+    handle: async (handlerInput) => parseAlexa(handlerInput, getRegulations)
 };
 const RecordIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Record'),
-    handle: (handlerInput) => parseAlexa(handlerInput, getRecord)
+    handle: async (handlerInput) => parseAlexa(handlerInput, getRecord)
 };
 
 const HelpIntentHandler = {

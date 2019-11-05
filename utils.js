@@ -81,8 +81,17 @@ const getHttp = (url, query, username = 'DUINNOVA', passw = 'Texeira1656') => {
     });
 };
 
+const toTitleCase = (phrase) => {
+    return phrase
+        .toLowerCase()
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+};
+
 module.exports = {
     dynamoRecord,
     recordQuery,
-    getHttp
+    getHttp,
+    toTitleCase,
 };

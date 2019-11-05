@@ -1,28 +1,9 @@
-const { planeamientoNdp, bdcSearch } = require('../APIs');
+const { getPlaneamiento } = require('../APIs');
 
-module.exports = (street) => {
-
+module.exports = async (street) => {
     console.log('[INFO] edificability request handler: ?');
-
-    return bdcSearch(street).then(a => {
-        console.log(a);
-        let NDP = a.codigoNdps;
-        return planeamientoNdp(NDP).then(response => {
-        	console.log(response);
-
-            area = response.parcela.usos[0].usoEdificabilidad;
-            
-            console.log('[INFO] Area');
-            console.log(area);
-
-            if (area === '---'){
-                return `No dispongo de esa información sobre ${street}`
-            } else {
-                return `En ${street} se puede construir ${area.replace(".", ",")} metros cuadrados`    
-            }
-
-        }).catch( e => {
-        	console.log(e.message)
-        })
-    })
+    let address = (typeof street === 'string') ? await getPlaneamiento(street) : street;
+    let area = address.planeamiento.parcela.usos[0].usoEdificabilidad;
+    return (area==='---') ? `No dispongo de esa información sobre ${parsedStreet}` :
+        `En ${address.parsedStreet} se puede construir ${area.replace(".", ",")} metros cuadrados`;
 };

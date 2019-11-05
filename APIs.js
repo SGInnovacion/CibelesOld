@@ -1,4 +1,4 @@
-const { getHttp, getHttpAuth } = require('./utils');
+const { getHttp, getHttpAuth, toTitleCase } = require('./utils');
 
 const PLAN_URL = 'www-2.munimadrid.es';
 const BDC_URL = 'www-j.munimadrid.es';
@@ -106,7 +106,7 @@ const planeamientoAddress = (claseVia = 'calle', nomVia = 'mayor', num = '2') =>
     })
 };
 
-const planeamientoNdp = (ndp = '11138219') => {
+const planeamientoNdp = async (ndp = '11138219') => {
     const path = `/RPGCS_RSPLAN/rest/getInfo.iam?idNdp=${ndp}`;
     return getHttp(PLAN_URL, path).then(res => {
         console.log(res);
@@ -114,7 +114,7 @@ const planeamientoNdp = (ndp = '11138219') => {
     })
 };
 
-const bdcSearch = street => {
+const bdcSearch = async (street) => {
     const path = `/BDCTR_RSGENERAL/restBDC/validarEspaguetti?cadena=${street}`;
     return getHttp(BDC_URL, path).then(res => {
         console.log('inside bdcSearch');
@@ -123,9 +123,24 @@ const bdcSearch = street => {
     })
 };
 
+async function getPlaneamiento(street) {
+    let result = await bdcSearch(street);
+    let NDP = result.codigoNdps;
+    let claseVial = result.claseVial ;
+    let nombre = result.viales;
+    let numero = result.numeros || '13';
+    let calificador = result.calificador;
+    let parsedStreet = toTitleCase(`${claseVial} ${nombre} ${numero}${calificador}`);
+    let planeamiento = await planeamientoNdp(NDP);
+    console.log(planeamiento)
+    console.log(parsedStreet)
+    return { planeamiento: planeamiento, parsedStreet: parsedStreet};
+};
+
 module.exports = {
     planeamientoCoordinates,
     planeamientoAddress,
     planeamientoNdp,
-    bdcSearch: bdcSearch,
+    bdcSearch,
+    getPlaneamiento,
 };
