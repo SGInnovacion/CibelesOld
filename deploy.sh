@@ -1,7 +1,10 @@
+echo 'Installing dependencies...'
+npm install
+echo 'Compressing deployment package...'
 zip -ru webhook.zip *
 
 if [ "$#" -eq  "0" ]; then
-	
+
 	echo 'Compressed.'
 	echo 'Deploying Alexa to AWS Lambda...'
 	aws configure set region us-east-1
@@ -15,7 +18,7 @@ if [ "$#" -eq  "0" ]; then
 	aws lambda update-function-code --function-name auto-webhook --zip-file fileb://./webhook.zip > /dev/null
 	echo 'Done!'
 	echo 'Deployment Complete'
-	
+
 else
 	echo 'Compressed. Deploying Dialogflow to AWS Lambda...'
 	aws configure set region us-east-2
