@@ -127,5 +127,5 @@ module.exports = {
     planeamientoCoordinates,
     planeamientoAddress,
     planeamientoNdp,
-    bdcSearch: bdcSearch,
+    bdcSearch,
 };
