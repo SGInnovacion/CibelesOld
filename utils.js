@@ -50,6 +50,37 @@ const recordQuery = (agent, intent) => {
     agent.setContext(context);
 };
 
+const getUserParams = (token, param) => {
+    return new Promise((resolve, reject) => {
+        const options = {
+            host: encodeURI('api.eu.amazonalexa.com'),
+            path: encodeURI('/v2/accounts/~current/settings/Profile.'+ param),
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        };
+
+        const request = http.request(options, response => {
+
+            console.log(response);
+            response.setEncoding('binary');
+            let returnData = '';
+
+            if (response.statusCode < 200 || response.statusCode >= 300) {
+                return reject(new Error(`${response.statusCode}: ${response.req.getHeader('host')} ${response.req.path}`));
+            }
+            response.on('data', chunk => {
+                returnData += chunk;
+            });
+            response.on('end', () => resolve(returnData));
+            response.on('error', error => {
+                console.log(error);
+                reject(error)});
+        });
+        request.end();
+    });
+};
+
 const getHttp = (url, query, username = 'DUINNOVA', passw = 'Texeira1656') => {
     return new Promise((resolve, reject) => {
         const options = {
@@ -89,9 +120,54 @@ const toTitleCase = (phrase) => {
         .join(' ');
 };
 
+const sendMail = async (mail, info, address ) => {
+    let nodemailer = require('nodemailer');
+    let smtpTransport = require('nodemailer-smtp-transport');
+
+    let transporter = nodemailer.createTransport(smtpTransport({
+        service: 'gmail',
+        auth: {
+            user: 'ayto.saturnolabs',
+            pass: 'Cibeles2019'
+        }
+    }));
+
+
+    let mailOptions = {
+        from: 'ayto.saturnolabs@gmail.com',
+        to: mail,
+        bcc: '<bcc email addres>',
+        subject: 'Ayuntamiento de Madrid - Tu consulta sobre ' + address,
+        text: info
+    };
+
+    transporter.sendMail(mailOptions, function(error, info){
+        if(error){
+            const response = {
+                statusCode: 500,
+                body: JSON.stringify({
+                    error: error.message,
+                }),
+            };
+            console.log(response);
+            return false;
+        }
+        const response = {
+            statusCode: 200,
+            body: JSON.stringify({
+                message: `Email processed succesfully!`
+            }),
+        };
+        console.log(response);
+        return true;
+    });
+}
+
 module.exports = {
     dynamoRecord,
     recordQuery,
     getHttp,
     toTitleCase,
+    getUserParams,
+    sendMail,
 };

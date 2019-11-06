@@ -4,8 +4,10 @@
 const Alexa = require('ask-sdk');
 const ddbAdapter = require('ask-sdk-dynamodb-persistence-adapter'); // included in ask-sdk
 const ddbTableName = 'CibelesConcept';
+const axios = require('axios');
 
 const { planeamientoNdp, bdcSearch, getPlaneamiento } = require('./APIs');
+const {sendMail} = require('./utils');
 
 const getProtection = require('./intentHandlers/protection');
 const getRecord = require('./intentHandlers/record');
@@ -21,6 +23,8 @@ const alexaSpeak = (handlerInput, speech, reprompt = speech) => handlerInput.res
 
 async function parseAlexa(handlerInput, intentHandler){
     const { Street, Number, Calificator } = handlerInput.requestEnvelope.request.intent.slots;
+
+
     let address = 'Alcalá 23';
     let requestInfo = '';
     if(Street.value !== undefined && Number.value !== undefined){
@@ -58,12 +62,56 @@ const LaunchRequestHandler = {
     async handle(handlerInput) {
         const { attributesManager } = handlerInput;
         const attributes = await attributesManager.getPersistentAttributes() || {};
+        // const accessToken = handlerInput.requestEnvelope.context.System.apiAccessToken;
+        // console.log(accessToken);
+        // console.log(typeof accessToken);
+        // // let name = await getUserParams(accessToken, 'givenName');
+        // const upsServiceClient = serviceClientFactory.getUpsServiceClient();
+        // const name = await upsServiceClient.getProfileGivenName();
+        // const mail = await upsServiceClient.getProfileEmail();
+        const { apiAccessToken, apiEndpoint, user } = handlerInput.requestEnvelope.context.System;
+        const getEmailUrl = apiEndpoint.concat(
+            `/v2/accounts/~current/settings/Profile.email`
+        );
+        const getName = apiEndpoint.concat(
+            `/v2/accounts/~current/settings/Profile.givenName`
+        );
+
+        let mailResult = "";
+        try {
+            mailResult = await axios.get(getEmailUrl, {
+                headers: {
+                    Accept: "application/json",
+                    Authorization: "Bearer " + apiAccessToken
+                }
+            });
+        } catch (error) {
+            console.log(error);
+        }
+
+        let nameResult = "";
+        try {
+            nameResult = await axios.get(getName, {
+                headers: {
+                    Accept: "application/json",
+                    Authorization: "Bearer " + apiAccessToken
+                }
+            });
+        } catch (error) {
+            console.log(error);
+        }
+
+        const email = mailResult && mailResult.data;
+        const name = nameResult && nameResult.data;
+
+        console.log( name + ', your email is ' + email);
+
         let speakOutput = `Hola, Soy Cibeles, el servicio de búsqueda urbanística del Ayuntamiento de Madrid. Puedo responder a tus consultas sobre edificabilidad, protección, normativa, usos o expedientes. Dime la categoría sobre la que quieres preguntar para que té de una explicación más detallada, o pregúntame directamente. Por ejemplo: ¿Qué puedo construir en la parcela RC1 del APE 02 27?`;
 
         if(Object.keys(attributes).length > 0){
             attributesManager.setSessionAttributes(attributes);
             console.log(attributes);
-            speakOutput = `Bienvenido de nuevo, puedo seguir informándote sobre ${attributes.street} o puedes consultarme sobre una dirección nueva`;
+            speakOutput = `Hola ${name}, puedo seguir informándote sobre ${attributes.street} o puedes consultarme sobre una dirección nueva`;
         }
 
         return handlerInput.responseBuilder
@@ -99,6 +147,37 @@ const RegulationsIntentHandler = {
 const RecordIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Record'),
     handle: async (handlerInput) => parseAlexa(handlerInput, getRecord)
+};
+
+const MailIntentHandler = {
+    canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Mail'),
+    handle: async (handlerInput) => {
+        const { apiAccessToken, apiEndpoint, user } = handlerInput.requestEnvelope.context.System;
+
+        const getEmailUrl = apiEndpoint.concat(
+            `/v2/accounts/~current/settings/Profile.email`
+        );
+        let mailResult = "";
+        try {
+            mailResult = await axios.get(getEmailUrl, {
+                headers: {
+                    Accept: "application/json",
+                    Authorization: "Bearer " + apiAccessToken
+                }
+            });
+        } catch (error) {
+            console.log(error);
+        }
+
+        const email = mailResult && mailResult.data;
+        if(email.includes('@')){
+            let street = handlerInput.attributesManager.getSessionAttributes().street;
+            let planeamiento = handlerInput.attributesManager.getSessionAttributes().planeamiento;
+            let success = await sendMail(email, JSON.stringify(planeamiento), street);
+            let out = success ? 'He enviado tu consulta al correo' : 'Lo siento, en estos momentos no puedo hacer eso';
+            alexaSpeak(handlerInput, out);
+        }
+    }
 };
 
 const HelpIntentHandler = {
@@ -171,6 +250,7 @@ exports.handler = Alexa.SkillBuilders.custom()
         UseIntentHandler,
         RegulationsIntentHandler,
         RecordIntentHandler,
+        MailIntentHandler,
         IntentReflectorHandler, // make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
     )
     .addErrorHandlers(
