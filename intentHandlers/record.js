@@ -1,4 +1,4 @@
-const { planeamientoNdp, bdcSearch } = require('../APIs');
+const { getPlaneamiento } = require('../APIs');
 
 module.exports = async (street) => {
             let address = (typeof street === 'string') ? await getPlaneamiento(street) : street;
