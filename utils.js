@@ -120,28 +120,58 @@ const toTitleCase = (phrase) => {
         .join(' ');
 };
 
+const mailTemplate = `
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="https://www.w3.org/1999/xhtml">
+<head>
+<title>Test Email Sample</title>
+<body>
+
+<h1>Dani es un cutre</h1>
+<h2>Pero Alfon nope</h2>
+</body>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0 " />
+<style>
+h1{
+background-color: red;
+}
+</style>
+</head>
+`;
+
+
 const sendMail = async (mail, info, address ) => {
     let nodemailer = require('nodemailer');
     let smtpTransport = require('nodemailer-smtp-transport');
 
-    let transporter = nodemailer.createTransport(smtpTransport({
-        service: 'gmail',
+    console.log('Inside send mail');
+    console.log(mail);
+
+    let transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        tls: {
+            rejectUnauthorized: false
+        },
         auth: {
             user: 'ayto.saturnolabs',
             pass: 'Cibeles2019'
         }
-    }));
+    });
 
 
     let mailOptions = {
-        from: 'ayto.saturnolabs@gmail.com',
+        from: 'ayto.saturnolabs',
         to: mail,
         bcc: '<bcc email addres>',
         subject: 'Ayuntamiento de Madrid - Tu consulta sobre ' + address,
-        text: info
+        html: mailTemplate
     };
 
-    transporter.sendMail(mailOptions, function(error, info){
+    return transporter.sendMail(mailOptions, function(error, info){
         if(error){
             const response = {
                 statusCode: 500,
@@ -161,7 +191,9 @@ const sendMail = async (mail, info, address ) => {
         console.log(response);
         return true;
     });
-}
+};
+
+
 
 module.exports = {
     dynamoRecord,

@@ -35,7 +35,9 @@ router.post('/', (request, response) => {
     async function parseDialog(agent, intentHandler){
         const street = agent.parameters.address || 'alcalá 23';
         let out = await intentHandler(street);
+        console.log(out);
         agent.add(out);
+        // agent.add(out);
     }
 
     // Run the proper function handler based on the matched Dialogflow intent name

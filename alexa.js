@@ -106,7 +106,7 @@ const LaunchRequestHandler = {
 
         console.log( name + ', your email is ' + email);
 
-        let speakOutput = `Hola, Soy Cibeles, el servicio de búsqueda urbanística del Ayuntamiento de Madrid. Puedo responder a tus consultas sobre edificabilidad, protección, normativa, usos o expedientes. Dime la categoría sobre la que quieres preguntar para que té de una explicación más detallada, o pregúntame directamente. Por ejemplo: ¿Qué puedo construir en la parcela RC1 del APE 02 27?`;
+        let speakOutput = `Hola, soy Cibeles. Estoy preparada para responderte a preguntas urbanísticas sobre usos, edificabilidades, normativa, protección o expedientes. ¿Sobre qué quieres información?`;
 
         if(Object.keys(attributes).length > 0){
             attributesManager.setSessionAttributes(attributes);
@@ -174,8 +174,10 @@ const MailIntentHandler = {
             let street = handlerInput.attributesManager.getSessionAttributes().street;
             let planeamiento = handlerInput.attributesManager.getSessionAttributes().planeamiento;
             let success = await sendMail(email, JSON.stringify(planeamiento), street);
-            let out = success ? 'He enviado tu consulta al correo' : 'Lo siento, en estos momentos no puedo hacer eso';
-            alexaSpeak(handlerInput, out);
+            console.log('success');
+            console.log(success);
+            let out = 'He enviado tu consulta al correo';
+            return alexaSpeak(handlerInput, out);
         }
     }
 };
