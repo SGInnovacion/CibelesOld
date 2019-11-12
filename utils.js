@@ -120,58 +120,6 @@ const toTitleCase = (phrase) => {
         .join(' ');
 };
 
-/*
-const sendMail = async (mail, info, address ) => {
-    let nodemailer = require('nodemailer');
-    let smtpTransport = require('nodemailer-smtp-transport');
-
-    console.log('Inside send mail');
-    console.log(mail);
-
-    let transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
-        // tls: {
-        //     rejectUnauthorized: false
-        // },
-        auth: {
-            user: 'ayto.saturnolabs',
-            pass: 'Cibeles2019'
-        }
-    });
-
-
-    let mailOptions = {
-        from: 'ayto.saturnolabs',
-        to: mail,
-        bcc: '<bcc email addres>',
-        subject: 'Ayuntamiento de Madrid - Tu consulta sobre ' + address,
-        html: info
-    };
-
-    return transporter.sendMail(mailOptions, function(error, info){
-        if(error){
-            const response = {
-                statusCode: 500,
-                body: JSON.stringify({
-                    error: error.message,
-                }),
-            };
-            console.log(response);
-            return false;
-        }
-        const response = {
-            statusCode: 200,
-            body: JSON.stringify({
-                message: `Email processed succesfully!`
-            }),
-        };
-        console.log(response);
-        return true;
-    });
-};
-*/
 
 const sendMail = async (mail, info, address) => {
     const ses = new AWS.SES({region: 'us-east-1'});
