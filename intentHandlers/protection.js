@@ -26,7 +26,7 @@ const general = async street => {
         speechText += 'Además, pertenece al Arrabal de Felipe II. ';
     }
 
-    speechText += '¿Quieres preguntar por el uso, edificabilidad, normativa o expediente en la misma ubicación?'
+    speechText += '¿Quieres que te envíe un correo con la información que he encontrado?'
 
     return speechText;
 };

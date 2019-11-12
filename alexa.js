@@ -65,13 +65,6 @@ const LaunchRequestHandler = {
     async handle(handlerInput) {
         const { attributesManager } = handlerInput;
         const attributes = await attributesManager.getPersistentAttributes() || {};
-        // const accessToken = handlerInput.requestEnvelope.context.System.apiAccessToken;
-        // console.log(accessToken);
-        // console.log(typeof accessToken);
-        // // let name = await getUserParams(accessToken, 'givenName');
-        // const upsServiceClient = serviceClientFactory.getUpsServiceClient();
-        // const name = await upsServiceClient.getProfileGivenName();
-        // const mail = await upsServiceClient.getProfileEmail();
         const { apiAccessToken, apiEndpoint, user } = handlerInput.requestEnvelope.context.System;
         const getEmailUrl = apiEndpoint.concat(
             `/v2/accounts/~current/settings/Profile.email`
@@ -113,7 +106,7 @@ const LaunchRequestHandler = {
 
         if(Object.keys(attributes).length > 0){
             attributesManager.setSessionAttributes(attributes);
-            console.log(attributes);
+            console.log('Attributes, 'attributes);
             speakOutput = `Hola ${name}, puedo seguir informándote sobre ${attributes.street} o puedes consultarme sobre una dirección nueva`;
         }
 
