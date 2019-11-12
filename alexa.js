@@ -116,13 +116,6 @@ const LaunchRequestHandler = {
             .getResponse();
     }
 };
-const HelloWorldIntentHandler = {
-    canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'HelloWorldIntent'),
-    handle(handlerInput) {
-        const speakOutput = `Hola, Soy Cibeles, el servicio de búsqueda urbanística del Ayuntamiento de Madrid. Puedo responder a tus consultas sobreedificabilidad, protección, normativa, usos o expedientes. Dime la categoría sobre la que quieres preguntar para que té de una explicación más detallada, o pregúntame directamente. Por ejemplo: ¿Qué puedo construir en la parcela RC1 del APE 02 27?`;
-        return alexaSpeak(handlerInput, speakOutput);
-    }
-};
 
 const EdificabilityIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Edificability'),
@@ -171,6 +164,11 @@ const RecordIntentHandler = {
     handle: async (handlerInput) => parseAlexa(handlerInput, getRecord)
 };
 
+const NoIntentHandler = {
+    canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'NoIntent'),
+    handle: async (handlerInput) => alexaSpeak(handlerInput, 'Genial. ¿Qué más quieres saber?')
+};
+
 const MailIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Mail'),
     handle: async (handlerInput) => {
@@ -200,6 +198,8 @@ const MailIntentHandler = {
             console.log(success);
             let out = 'Ya te lo he enviado, qué más quieres saber?';
             return alexaSpeak(handlerInput, out);
+        } else {
+            return alexaSpeak(handlerInput, 'Vaya, he tenido problemas para enviártelo. Comprueba que has habilitado los permisos de correo en la skill.');
         }
     }
 };
@@ -253,7 +253,7 @@ const ErrorHandler = {
     },
     handle(handlerInput, error) {
         console.log(`~~~~ Error handled: ${error.stack}`);
-        const speakOutput = `Sorry, I had trouble doing what you asked. Please try again.`;
+        const speakOutput = `La que has liado!`;
         return alexaSpeak(handlerInput, speakOutput);
     }
 };
