@@ -14,7 +14,7 @@ const general = async street => {
     const anyCatalogue = Object.keys(catalogo).find( key => catalogo[key] !== [] && catalogo[key][0] && catalogo[key][0].proteccionActual !== undefined);
     const affectedPatrimonio = patrimonioHistorico && patrimonioHistorico.length !== 0;
 
-    speechText += anyCatalogue ? `${address.parsedStreet} tiene un grado de protección ${catalogo[anyCatalogue][0].proteccionActual} como ${anyCatalogue}` : `${address.parsedStreet} no está protegido `;
+    speechText += anyCatalogue ? `${address.parsedStreet} tiene un grado de protección ${catalogo[anyCatalogue][0].proteccionActual} como ${anyCatalogue}. ` : `${address.parsedStreet} no está protegido. `;
     speechText += affectedPatrimonio ? 'También forma parte del Patrimonio Histórico de la Comunidad de Madrid. '
         : 'No forma parte del patrimonio de la Comunidad de Madrid. ';
 
