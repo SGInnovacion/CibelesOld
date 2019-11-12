@@ -25,13 +25,13 @@ const alexaCanHandle = (handlerInput, intentName) => Alexa.getRequestType(handle
 const alexaSpeak = (handlerInput, speech, reprompt = speech) => handlerInput.responseBuilder.speak(speech).reprompt(reprompt).getResponse();
 
 async function parseAlexa(handlerInput, intentHandler){
-    const { Street, Number, Calificator } = handlerInput.requestEnvelope.request.intent.slots;
+    const { Street, Number } = handlerInput.requestEnvelope.request.intent.slots;
 
 
     let address = 'Alcalá 23';
     let requestInfo = '';
     if(Street.value !== undefined && Number.value !== undefined){
-        address = `${Street.value} ${Number.value}${Calificator.value !== undefined? Calificator.value : ''}`;
+        address = `${Street.value} ${Number.value}`;
         requestInfo = await getPlaneamiento(address);
         setSessionParams(handlerInput, {
             street: requestInfo.parsedStreet,
@@ -135,10 +135,36 @@ const EdificabilityIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Edificability'),
     handle: async (handlerInput) => parseAlexa(handlerInput, getEdificability)
 };
-const ProtectionIntentHandler = {
-    canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Protection'),
+const ProtectionGeneralIntentHandler = {
+    canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'ProtectionGeneral'),
     handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.general)
 };
+
+const ProtectionCatalogueIntentHandler = {
+    canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'ProtectionCatalogue'),
+    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.catalogue)
+};
+
+const ProtectionApeIntentHandler = {
+    canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'ProtectionApe'),
+    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.ape)
+};
+
+const ProtectionFelipeIntentHandler = {
+    canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'ProtectionFelipe'),
+    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.felipe)
+};
+
+const ProtectionBipIntentHandler = {
+    canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'ProtectionBip'),
+    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.bip)
+};
+
+const ProtectionBicIntentHandler = {
+    canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'ProtectionBic'),
+    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.bic)
+};
+
 const UseIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Use'),
     handle: async (handlerInput) => parseAlexa(handlerInput, getUse)
@@ -251,7 +277,12 @@ exports.handler = Alexa.SkillBuilders.custom()
         CancelAndStopIntentHandler,
         SessionEndedRequestHandler,
         EdificabilityIntentHandler,
-        ProtectionIntentHandler,
+        ProtectionGeneralIntentHandler,
+        ProtectionCatalogueIntentHandler,
+        ProtectionApeIntentHandler,
+        ProtectionFelipeIntentHandler,
+        ProtectionBipIntentHandler,
+        ProtectionBicIntentHandler
         UseIntentHandler,
         RegulationsIntentHandler,
         RecordIntentHandler,
