@@ -2,12 +2,15 @@
 // Please visit https://alexa.design/cookbook for additional examples on implementing slots, dialog management,
 // session persistence, api calls, and more.
 const Alexa = require('ask-sdk');
+
 const ddbAdapter = require('ask-sdk-dynamodb-persistence-adapter'); // included in ask-sdk
 const ddbTableName = 'CibelesConcept';
 const axios = require('axios');
 
 const { planeamientoNdp, bdcSearch, getPlaneamiento } = require('./APIs');
 const {sendMail} = require('./utils');
+const fillMail = require('./mail').fillMail;
+
 
 const getProtection = require('./intentHandlers/protection');
 const getRecord = require('./intentHandlers/record');
@@ -173,7 +176,7 @@ const MailIntentHandler = {
         if(email.includes('@')){
             let street = handlerInput.attributesManager.getSessionAttributes().street;
             let planeamiento = handlerInput.attributesManager.getSessionAttributes().planeamiento;
-            let success = await sendMail(email, JSON.stringify(planeamiento), street);
+            let success = await sendMail(email, fillMail(''), street);
             console.log('success');
             console.log(success);
             let out = 'He enviado tu consulta al correo';

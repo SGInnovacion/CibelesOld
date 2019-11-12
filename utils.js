@@ -120,28 +120,7 @@ const toTitleCase = (phrase) => {
         .join(' ');
 };
 
-const mailTemplate = `
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="https://www.w3.org/1999/xhtml">
-<head>
-<title>Test Email Sample</title>
-<body>
-
-<h1>Dani es un cutre</h1>
-<h2>Pero Alfon nope</h2>
-</body>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0 " />
-<style>
-h1{
-background-color: red;
-}
-</style>
-</head>
-`;
-
-
+/*
 const sendMail = async (mail, info, address ) => {
     let nodemailer = require('nodemailer');
     let smtpTransport = require('nodemailer-smtp-transport');
@@ -153,9 +132,9 @@ const sendMail = async (mail, info, address ) => {
         host: 'smtp.gmail.com',
         port: 465,
         secure: true,
-        tls: {
-            rejectUnauthorized: false
-        },
+        // tls: {
+        //     rejectUnauthorized: false
+        // },
         auth: {
             user: 'ayto.saturnolabs',
             pass: 'Cibeles2019'
@@ -168,7 +147,7 @@ const sendMail = async (mail, info, address ) => {
         to: mail,
         bcc: '<bcc email addres>',
         subject: 'Ayuntamiento de Madrid - Tu consulta sobre ' + address,
-        html: mailTemplate
+        html: info
     };
 
     return transporter.sendMail(mailOptions, function(error, info){
@@ -192,8 +171,40 @@ const sendMail = async (mail, info, address ) => {
         return true;
     });
 };
+*/
 
+const sendMail = async (mail, info, address) => {
+    const ses = new AWS.SES({region: 'us-east-1'});
+    var params = {
+        Destination: {
+            ToAddresses: [mail]
+        },
+        Message: {
+            Body: {
+                Text: { Data: "Test"
+                },
+                Html: {
+                    Data: info
+                },
+            },
+            Subject: { Data: `Tu consulta sobre ${address}`
+            }
+        },
+        Source: "ayto.saturnolabs@gmail.com"
+    };
+    console.log(params);
+    return ses.sendEmail(params, function (err, data) {
+        console.log('sending mail');
+        console.log(data);
+        console.log(err);
+        if (err) {
+            return false;
+        } else {
+            return true;
+        }
+    });
 
+};
 
 module.exports = {
     dynamoRecord,
