@@ -282,7 +282,7 @@ exports.handler = Alexa.SkillBuilders.custom()
         ProtectionApeIntentHandler,
         ProtectionFelipeIntentHandler,
         ProtectionBipIntentHandler,
-        ProtectionBicIntentHandler
+        ProtectionBicIntentHandler,
         UseIntentHandler,
         RegulationsIntentHandler,
         RecordIntentHandler,
