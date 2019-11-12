@@ -25,8 +25,6 @@ const parseGeneralInfo = parcela => {
 
 const parseMainUse = main => {
     let out = '';
-    let out = '';
-
     // uses.map(use => {
     //     out += `
     //             <tr>
