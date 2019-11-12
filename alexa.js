@@ -188,9 +188,9 @@ const MailIntentHandler = {
         } catch (error) {
             console.log(error);
         }
-
-        const email = mailResult && mailResult.data;
-        if(email.includes('@')){
+   
+        try {
+            const email = mailResult && mailResult.data;
             let street = handlerInput.attributesManager.getSessionAttributes().street;
             let planeamiento = handlerInput.attributesManager.getSessionAttributes().planeamiento;
             let success = await sendMail(email, fillMail(planeamiento, street), street);
@@ -198,9 +198,10 @@ const MailIntentHandler = {
             console.log(success);
             let out = 'Ya te lo he enviado, qué más quieres saber?';
             return alexaSpeak(handlerInput, out);
-        } else {
+        } catch (error) {
+            console.log(error);
             return alexaSpeak(handlerInput, 'Vaya, he tenido problemas para enviártelo. Comprueba que has habilitado los permisos de correo en la skill.');
-        }
+        }   
     }
 };
 
