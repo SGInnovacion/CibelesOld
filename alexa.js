@@ -265,7 +265,6 @@ exports.handler = Alexa.SkillBuilders.custom()
     .withPersistenceAdapter(getPersistenceAdapter(ddbTableName))
     .addRequestHandlers(
         LaunchRequestHandler,
-        HelloWorldIntentHandler,
         HelpIntentHandler,
         CancelAndStopIntentHandler,
         SessionEndedRequestHandler,

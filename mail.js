@@ -21,24 +21,51 @@ const parseGeneralInfo = parcela => {
                <p>${parcela.zonaUrbanistica}</p>
           `}
     `;
-}
+};
 
 const parseMainUse = main => {
-    let out = '';
-    // uses.map(use => {
-    //     out += `
-    //             <tr>
-    //                 <td>DOTACIONAL SERVICIOS COLECTIVOS</td>
-    //                 <td>Jackson</td>
-    //             </tr>
-    //     `;
-    // });
+    return `
+    <tr>
+         <td>${main.usoDenominacion}</td>
+         <td>${main.usoEdificabilidad} m<sup>2</sup></td>
+    </tr>
+    `;
+};
 
+const parseVigente = vigente => {
+    return `
+    <div class="expediente">
+     <div class="section-title">Expediente y planeamiento vigente (8)</div>
+     <div class="expediente-info">
+          <table class='exp-table' style="min-width: 60%">
+                      <tr>
+                        <th align="left" class='table-title' style="font-size: 1.3em;">
+                             <b>Número</b></th>
+                        <th align="left" class='table-title' style="font-size: 1.3em;">
+                             <b>Denominación</b></th>
+                        <th align="left" class='table-title' style="font-size: 1.3em;">
+                             <b>Fase</b></th>
+                        <th align="left" class='table-title' style="font-size: 1.3em;">
+                             <b>Fecha</b></th>
+                      </tr>
+                      <tr>
+                        <td>${vigente.numero}</td>
+                        <td>${vigente.denominacion}</td>
+                        <td>${vigente.fase}</td>
+                        <td>${vigente.fechaAprobacion}</td>
+                      </tr>
+                      
+          </table>
+     </div>
+</div>
+    `;
 }
 
 const fillMail = (plan = '', address) => {
     console.log(Object.values(plan));
     console.log(plan);
+    console.log('length: ')
+    console.log(plan.parcela.exptePlaneamientoVigente.length)
     return `
    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="https://www.w3.org/1999/xhtml">
@@ -67,58 +94,13 @@ const fillMail = (plan = '', address) => {
                         <th align="left" class='table-title' style="font-size: 1.3em;"><b>Principal: (5)</b></th>
                         <th></th>
                       </tr>
-                      <tr>
-                        <td>SERVICIOS TERCIARIOS OFICINAS (6)</td>
-                        <td>(7)92.740,00 m<sup>2</sup></td>
-                      </tr>
-                      <tr>
-                        <td>DOTACIONAL SERVICIOS COLECTIVOS</td>
-                        <td>Jackson</td>
-                      </tr>
-                      <tr>
-                            <td>RESIDENCIAL VIVIENDA COLECTIVA LIBRE</td>
-                        <td>68.493,42 m<sup>2</sup></td>
-                      </tr>
-                      <tr>
-                            <td>SERVICIOS TERCIARIOS HOSPEDAJE</td>
-                        <td>68.493,42 m<sup>2</sup></td>
-                      </tr>
-                      <tr>
-                            <td>SERVICIOS TERCIARIOS COMERCIAL</td>
-                        <td>30.118,00 m<sup>2</sup></td>
-                      </tr>
+                      ${parseMainUse(plan.parcela.usos[0])}
                </table>
           </div>
      </div>
 </div>
+${plan.parcela.exptePlaneamientoVigente.length > 0 ? parseVigente(plan.parcela.exptePlaneamientoVigente): ''}
 
-<div class="expediente">
-     <div class="section-title">Expediente y planeamiento vigente (8)</div>
-     <div class="expediente-info">
-          <table class='exp-table' style="min-width: 60%">
-                      <tr>
-                        <th align="left" class='table-title' style="font-size: 1.3em;">
-                             <b>Número</b></th>
-                         <th align="left" class='table-title' style="font-size: 1.3em;">
-                             <b>Denominación</b></th>
-                      </tr>
-                      <tr>
-                        <td>SERVICIOS TERCIARIOS OFICINAS (6)</td>
-                        <td>(7)92.740,00 m<sup>2</sup></td>
-                      </tr>
-                      <tr>
-                        <th align="left" class='table-title' style="font-size: 1.3em;">
-                             <b>Fase</b></th>
-                         <th align="left" class='table-title' style="font-size: 1.3em;">
-                             <b>Fecha</b></th>
-                      </tr>
-                      <tr>
-                        <td>SERVICIOS TERCIARIOS OFICINAS (6)</td>
-                        <td>(7)92.740,00 m<sup>2</sup></td>
-                      </tr>
-          </table>
-     </div>
-</div>
 
 <div class="proteccion">
      <div class="section-title">Protección del patrimonio (13)</div>
