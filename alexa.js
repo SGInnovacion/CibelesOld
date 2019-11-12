@@ -165,7 +165,7 @@ const RecordIntentHandler = {
 };
 
 const NoIntentHandler = {
-    canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'NoIntent'),
+    canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'AMAZON.NoIntent'),
     handle: async (handlerInput) => alexaSpeak(handlerInput, 'Genial. ¿Qué más quieres saber?')
 };
 
@@ -280,7 +280,8 @@ exports.handler = Alexa.SkillBuilders.custom()
         RegulationsIntentHandler,
         RecordIntentHandler,
         MailIntentHandler,
-        IntentReflectorHandler, // make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
+        IntentReflectorHandler,
+        NoIntentHandler, // make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
     )
     .addErrorHandlers(
         ErrorHandler,
