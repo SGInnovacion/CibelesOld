@@ -65,13 +65,7 @@ const LaunchRequestHandler = {
     async handle(handlerInput) {
         const { attributesManager } = handlerInput;
         const attributes = await attributesManager.getPersistentAttributes() || {};
-        // const accessToken = handlerInput.requestEnvelope.context.System.apiAccessToken;
-        // console.log(accessToken);
-        // console.log(typeof accessToken);
-        // // let name = await getUserParams(accessToken, 'givenName');
-        // const upsServiceClient = serviceClientFactory.getUpsServiceClient();
-        // const name = await upsServiceClient.getProfileGivenName();
-        // const mail = await upsServiceClient.getProfileEmail();
+
         const { apiAccessToken, apiEndpoint, user } = handlerInput.requestEnvelope.context.System;
         const getEmailUrl = apiEndpoint.concat(
             `/v2/accounts/~current/settings/Profile.email`
@@ -202,10 +196,10 @@ const MailIntentHandler = {
         if(email.includes('@')){
             let street = handlerInput.attributesManager.getSessionAttributes().street;
             let planeamiento = handlerInput.attributesManager.getSessionAttributes().planeamiento;
-            let success = await sendMail(email, fillMail(''), street);
+            let success = await sendMail(email, fillMail(planeamiento, street), street);
             console.log('success');
             console.log(success);
-            let out = 'He enviado tu consulta al correo';
+            let out = 'Ya te lo he enviado, qué más quieres saber?';
             return alexaSpeak(handlerInput, out);
         }
     }
@@ -282,7 +276,7 @@ exports.handler = Alexa.SkillBuilders.custom()
         ProtectionApeIntentHandler,
         ProtectionFelipeIntentHandler,
         ProtectionBipIntentHandler,
-        ProtectionBicIntentHandler
+        ProtectionBicIntentHandler,
         UseIntentHandler,
         RegulationsIntentHandler,
         RecordIntentHandler,
