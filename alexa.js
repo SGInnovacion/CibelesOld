@@ -193,6 +193,8 @@ const MailIntentHandler = {
         if(email.includes('@')){
             let street = handlerInput.attributesManager.getSessionAttributes().street;
             let planeamiento = handlerInput.attributesManager.getSessionAttributes().planeamiento;
+            console.log('FILL')
+            console.log(fillMail(planeamiento, street))
             let success = await sendMail(email, fillMail(planeamiento, street), street);
             console.log('success');
             console.log(success);

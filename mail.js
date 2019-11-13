@@ -32,6 +32,14 @@ const parseMainUse = main => {
     `;
 };
 
+const parseAPE = parcela => {
+
+};
+
+const parseFelipe = parcela => {
+
+};
+
 const parseVigente = vigente => {
     return `
     <div class="expediente">
@@ -65,7 +73,6 @@ const fillMail = (plan = '', address) => {
     console.log(Object.values(plan));
     console.log(plan);
     console.log('length: ')
-    console.log(plan.parcela.exptePlaneamientoVigente.length)
     return `
    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="https://www.w3.org/1999/xhtml">
