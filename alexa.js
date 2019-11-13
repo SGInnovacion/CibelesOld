@@ -165,7 +165,7 @@ const RecordIntentHandler = {
 };
 
 const NoIntentHandler = {
-    canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'NoIntent'),
+    canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'AMAZON.NoIntent'),
     handle: async (handlerInput) => alexaSpeak(handlerInput, 'Genial. ¿Qué más quieres saber?')
 };
 
@@ -188,9 +188,9 @@ const MailIntentHandler = {
         } catch (error) {
             console.log(error);
         }
-
-        const email = mailResult && mailResult.data;
-        if(email.includes('@')){
+   
+        try {
+            const email = mailResult && mailResult.data;
             let street = handlerInput.attributesManager.getSessionAttributes().street;
             let planeamiento = handlerInput.attributesManager.getSessionAttributes().planeamiento;
             console.log('FILL')
@@ -200,9 +200,10 @@ const MailIntentHandler = {
             console.log(success);
             let out = 'Ya te lo he enviado, qué más quieres saber?';
             return alexaSpeak(handlerInput, out);
-        } else {
+        } catch (error) {
+            console.log(error);
             return alexaSpeak(handlerInput, 'Vaya, he tenido problemas para enviártelo. Comprueba que has habilitado los permisos de correo en la skill.');
-        }
+        }   
     }
 };
 
@@ -281,7 +282,8 @@ exports.handler = Alexa.SkillBuilders.custom()
         RegulationsIntentHandler,
         RecordIntentHandler,
         MailIntentHandler,
-        IntentReflectorHandler, // make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
+        IntentReflectorHandler,
+        NoIntentHandler, // make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
     )
     .addErrorHandlers(
         ErrorHandler,
