@@ -223,7 +223,6 @@ const getSuggestions = (handlerInput) => {
     } else {
         return 'Puedes preguntar por ' + toConsult.slice(1, 3).join(' o ') + ' en la misma ubicación'
     }
-
 }
 
 const HelpIntentHandler = {

@@ -1,6 +1,6 @@
 const { getPlaneamiento } = require('../APIs');
 
-module.exports = async () => {
+module.exports = async (street) => {
     console.log('[INFO] edificability request handler: ?');
     let address = (typeof street === 'string') ? await getPlaneamiento(street) : street;
     let area = address.planeamiento.parcela.usos[0].usoEdificabilidad;
