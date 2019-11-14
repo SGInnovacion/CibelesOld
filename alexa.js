@@ -197,8 +197,12 @@ const MailIntentHandler = {
 
         try {
             const email = mailResult && mailResult.data;
-            let street = handlerInput.attributesManager.getSessionAttributes().street;
-            let planeamiento = handlerInput.attributesManager.getSessionAttributes().planeamiento;
+
+            let sessionAttrs = handlerInput.attributesManager.getSessionAttributes();
+            let street = sessionAttrs.street;
+            let planeamiento = sessionAttrs.planeamiento;
+            console.log(sessionAttrs.consulted);
+            setSessionParams(handlerInput, {...sessionAttrs, consulted: [...sessionAttrs.consulted, 'mail']});
             console.log('FILL')
             console.log(fillMail(planeamiento, street))
             let success = await sendMail(email, fillMail(planeamiento, street), street);
