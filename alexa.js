@@ -172,7 +172,11 @@ const RecordIntentHandler = {
 
 const NoIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'AMAZON.NoIntent'),
-    handle: async (handlerInput) => alexaSpeak(handlerInput, 'Genial. ' + getSuggestions(handlerInput))
+    handle: async (handlerInput) => {
+        let sessionAttrs = handlerInput.attributesManager.getSessionAttributes();
+        setSessionParams(handlerInput, {...sessionAttrs, consulted: [...sessionAttrs.consulted, 'mail']});
+        return alexaSpeak(handlerInput, 'Genial. ' + getSuggestions(handlerInput));
+    }
 };
 
 const MailIntentHandler = {
