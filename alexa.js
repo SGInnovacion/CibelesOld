@@ -222,15 +222,22 @@ const MailIntentHandler = {
 };
 
 const getSuggestions = (handlerInput) => {
+    
     let consulted = handlerInput.attributesManager.getSessionAttributes().consulted;
     let available = ['mail', 'edificabilidad', 'protección', 'expediente', 'normativa', 'usos'];
-    let toConsult = available.filter( el => !consulted.includes(el) );
 
-    if (toConsult.includes("mail")){
-        return '¿Quieres que te envíe un correo con la información que he encontrado?'
-    } else {
-        return 'Puedes preguntar por ' + toConsult.slice(1, 3).join(' o ') + ' en la misma ubicación'
+    if (consulted.length < available.length) {
+
+        let toConsult = available.filter( el => !consulted.includes(el) );
+        if (toConsult.includes("mail")){
+            return '¿Quieres que te envíe un correo con la información que he encontrado?'
+        } else {
+            return 'Puedes preguntar por ' + toConsult.slice(1, 3).join(' o ') + ' en la misma ubicación'
+        }
+
     }
+    
+    
 }
 
 const HelpIntentHandler = {
