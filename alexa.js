@@ -1,6 +1,3 @@
-// This sample demonstrates handling intents from an Alexa skill using the Alexa Skills Kit SDK (v2).
-// Please visit https://alexa.design/cookbook for additional examples on implementing slots, dialog management,
-// session persistence, api calls, and more.
 const Alexa = require('ask-sdk');
 
 const ddbAdapter = require('ask-sdk-dynamodb-persistence-adapter'); // included in ask-sdk
@@ -12,12 +9,14 @@ const {sendMail} = require('./utils');
 const fillMail = require('./mail').fillMail;
 
 
+
 const getProtection = require('./intentHandlers/protection');
 const getRecord = require('./intentHandlers/record');
 const getUse = require('./intentHandlers/use');
 const getRegulations = require('./intentHandlers/regulations');
 const getEdificability = require('./intentHandlers/edificability');
 const getGeneralInfo = require('./intentHandlers/generalInfo');
+const getMail = require('./intentHandlers/mail');
 
 const alexaCanHandle = (handlerInput, intentName) => Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
     && Alexa.getIntentName(handlerInput.requestEnvelope) === intentName;
@@ -25,8 +24,8 @@ const alexaCanHandle = (handlerInput, intentName) => Alexa.getRequestType(handle
 const alexaSpeak = (handlerInput, speech, reprompt = speech) => handlerInput.responseBuilder.speak(speech).reprompt(reprompt).getResponse();
 
 async function parseAlexa(handlerInput, intentHandler, name = ''){
-    const { Street, Number } = handlerInput.requestEnvelope.request.intent.slots;
-
+    const { Street, Number } = handlerInput.requestEnvelope.request.intent.slots;    
+    
     let address = 'Alcalá 23';
     let requestInfo = '';
     if(Street.value !== undefined && Number.value !== undefined){
@@ -40,9 +39,9 @@ async function parseAlexa(handlerInput, intentHandler, name = ''){
         });
     } else {
         let sessionAttrs = handlerInput.attributesManager.getSessionAttributes();
-        console.log(sessionAttrs.consulted);
-        setSessionParams(handlerInput, {...sessionAttrs, consulted: [...sessionAttrs.consulted, name]});
-        requestInfo = { planeamiento: sessionAttrs.planeamiento, parsedStreet: sessionAttrs.street };
+        console.log('consulted', sessionAttrs.consulted);
+        setSessionParams(handlerInput, {...sessionAttrs, consulted: sessionAttrs.consulted != undefined ? [...sessionAttrs.consulted, name] : [name]});
+        requestInfo = { planeamiento: sessionAttrs.planeamiento, parsedStreet: sessionAttrs.street, system: handlerInput.requestEnvelope.context.system};
     }
 
     let out = await intentHandler(requestInfo);
@@ -61,6 +60,20 @@ function getPersistenceAdapter(tableName) {
 
 function setSessionParams(handlerInput, params){
     handlerInput.attributesManager.setSessionAttributes(params)
+}
+
+const getSuggestions = (handlerInput) => {
+    let consulted = handlerInput.attributesManager.getSessionAttributes().consulted;
+    let available = ['mail', 'edificabilidad', 'protección', 'expediente', 'normativa', 'usos'];
+    if (consulted.length < available.length) {
+        let toConsult = available.filter( el => !consulted.includes(el) );
+        if (toConsult.includes("mail")){
+            return '¿Quieres que te envíe un correo con la información que he encontrado?'
+        } else {
+            return 'Puedes preguntar por ' + toConsult.slice(0, 2).join(' o ') + ' en la misma ubicación'
+        }
+    }
+    return ''
 }
 
 
@@ -181,64 +194,8 @@ const NoIntentHandler = {
 
 const MailIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Mail'),
-    handle: async (handlerInput) => {
-        const { apiAccessToken, apiEndpoint, user } = handlerInput.requestEnvelope.context.System;
-
-        const getEmailUrl = apiEndpoint.concat(
-            `/v2/accounts/~current/settings/Profile.email`
-        );
-        let mailResult = "";
-        try {
-            mailResult = await axios.get(getEmailUrl, {
-                headers: {
-                    Accept: "application/json",
-                    Authorization: "Bearer " + apiAccessToken
-                }
-            });
-        } catch (error) {
-            console.log(error);
-        }
-
-        try {
-            const email = mailResult && mailResult.data;
-
-            let sessionAttrs = handlerInput.attributesManager.getSessionAttributes();
-            let street = sessionAttrs.street;
-            let planeamiento = sessionAttrs.planeamiento;
-            console.log(sessionAttrs.consulted);
-            setSessionParams(handlerInput, {...sessionAttrs, consulted: [...sessionAttrs.consulted, 'mail']});
-            console.log('FILL')
-            console.log(fillMail(planeamiento, street))
-            let success = await sendMail(email, fillMail(planeamiento, street), street);
-            console.log('success');
-            console.log(success);
-            let out = 'Ya te lo he enviado. ' + getSuggestions(handlerInput);
-            return alexaSpeak(handlerInput, out);
-        } catch (error) {
-            console.log(error);
-            return alexaSpeak(handlerInput, 'Vaya, he tenido problemas para enviártelo. Comprueba que has habilitado los permisos de correo en la skill.');
-        }
-    }
+    handle: async (handlerInput) => parseAlexa(handlerInput, getMail, 'mail')
 };
-
-const getSuggestions = (handlerInput) => {
-
-    let consulted = handlerInput.attributesManager.getSessionAttributes().consulted;
-    let available = ['mail', 'edificabilidad', 'protección', 'expediente', 'normativa', 'usos'];
-    if (consulted.length < available.length) {
-
-        let toConsult = available.filter( el => !consulted.includes(el) );
-        if (toConsult.includes("mail")){
-            return '¿Quieres que te envíe un correo con la información que he encontrado?'
-        } else {
-            return 'Puedes preguntar por ' + toConsult.slice(0, 2).join(' o ') + ' en la misma ubicación'
-        }
-
-    }
-
-    return ''
-    
-}
 
 const HelpIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'AMAZON.HelpIntent'),
@@ -247,7 +204,7 @@ const HelpIntentHandler = {
 const CancelAndStopIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'AMAZON.CancelIntent') || alexaCanHandle(handlerInput, 'AMAZON.StopIntent'),
     handle(handlerInput) {
-        return alexaSpeak(handlerInput,'Goodbye')
+        return alexaSpeak(handlerInput,'Adiós')
     }
 };
 const SessionEndedRequestHandler = {
@@ -289,7 +246,7 @@ const ErrorHandler = {
     },
     handle(handlerInput, error) {
         console.log(`~~~~ Error handled: ${error.stack}`);
-        const speakOutput = `La que has liado!`;
+        const speakOutput = `La que has liado! Por favor comunica a mis creadores que me has dicho para que me puedan arreglar. `;
         return alexaSpeak(handlerInput, speakOutput);
     }
 };
