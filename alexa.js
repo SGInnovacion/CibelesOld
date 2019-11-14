@@ -24,23 +24,27 @@ const alexaCanHandle = (handlerInput, intentName) => Alexa.getRequestType(handle
 
 const alexaSpeak = (handlerInput, speech, reprompt = speech) => handlerInput.responseBuilder.speak(speech).reprompt(reprompt).getResponse();
 
-async function parseAlexa(handlerInput, intentHandler){
+async function parseAlexa(handlerInput, intentHandler, name = ''){
     const { Street, Number } = handlerInput.requestEnvelope.request.intent.slots;
-
 
     let address = 'Alcalá 23';
     let requestInfo = '';
     if(Street.value !== undefined && Number.value !== undefined){
+        console.log('New street requested');
         address = `${Street.value} ${Number.value}`;
         requestInfo = await getPlaneamiento(address);
         setSessionParams(handlerInput, {
             street: requestInfo.parsedStreet,
             planeamiento: requestInfo.planeamiento,
+            consulted: name !== '' ? [name] : [],
         });
     } else {
         let sessionAttrs = handlerInput.attributesManager.getSessionAttributes();
+        console.log(sessionAttrs.consulted);
+        setSessionParams(handlerInput, {...sessionAttrs, consulted: [...sessionAttrs.consulted, name]});
         requestInfo = { planeamiento: sessionAttrs.planeamiento, parsedStreet: sessionAttrs.street };
     }
+
     const out = await intentHandler(requestInfo);
     return alexaSpeak(handlerInput, out);
 }
@@ -119,11 +123,11 @@ const LaunchRequestHandler = {
 
 const EdificabilityIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Edificability'),
-    handle: async (handlerInput) => parseAlexa(handlerInput, getEdificability)
+    handle: async (handlerInput) => parseAlexa(handlerInput, getEdificability, 'edificabilidad')
 };
 const ProtectionGeneralIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'ProtectionGeneral'),
-    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.general)
+    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.general, 'protección')
 };
 
 const ProtectionCatalogueIntentHandler = {
@@ -153,15 +157,15 @@ const ProtectionBicIntentHandler = {
 
 const UseIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Use'),
-    handle: async (handlerInput) => parseAlexa(handlerInput, getUse)
+    handle: async (handlerInput) => parseAlexa(handlerInput, getUse, 'usos')
 };
 const RegulationsIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Regulations'),
-    handle: async (handlerInput) => parseAlexa(handlerInput, getRegulations)
+    handle: async (handlerInput) => parseAlexa(handlerInput, getRegulations, 'normativa')
 };
 const RecordIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Record'),
-    handle: async (handlerInput) => parseAlexa(handlerInput, getRecord)
+    handle: async (handlerInput) => parseAlexa(handlerInput, getRecord, 'expediente')
 };
 
 const NoIntentHandler = {
@@ -188,7 +192,7 @@ const MailIntentHandler = {
         } catch (error) {
             console.log(error);
         }
-   
+
         try {
             const email = mailResult && mailResult.data;
             let street = handlerInput.attributesManager.getSessionAttributes().street;
@@ -203,7 +207,7 @@ const MailIntentHandler = {
         } catch (error) {
             console.log(error);
             return alexaSpeak(handlerInput, 'Vaya, he tenido problemas para enviártelo. Comprueba que has habilitado los permisos de correo en la skill.');
-        }   
+        }
     }
 };
 
