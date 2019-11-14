@@ -130,7 +130,7 @@ async function getPlaneamiento(street) {
     let nombre = result.viales;
     let numero = result.numeros || '13';
     let calificador = result.calificador;
-    let parsedStreet = toTitleCase(`${claseVial} ${nombre} ${numero}${calificador}`);
+    let parsedStreet = toTitleCase(`${claseVial} ${nombre} ${numero} ${calificador.toUpperCase()}`);
     let planeamiento = await planeamientoNdp(NDP);
     console.log(planeamiento)
     console.log(parsedStreet)
