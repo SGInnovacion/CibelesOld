@@ -134,27 +134,27 @@ const ProtectionGeneralIntentHandler = {
 
 const ProtectionCatalogueIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'ProtectionCatalogue'),
-    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.catalogue)
+    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.catalogue, 'protección')
 };
 
 const ProtectionApeIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'ProtectionApe'),
-    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.ape)
+    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.ape, 'protección')
 };
 
 const ProtectionFelipeIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'ProtectionFelipe'),
-    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.felipe)
+    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.felipe, 'protección')
 };
 
 const ProtectionBipIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'ProtectionBip'),
-    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.bip)
+    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.bip, 'protección')
 };
 
 const ProtectionBicIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'ProtectionBic'),
-    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.bic)
+    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.bic, 'protección')
 };
 
 const UseIntentHandler = {
@@ -222,21 +222,21 @@ const MailIntentHandler = {
 };
 
 const getSuggestions = (handlerInput) => {
-    
+
     let consulted = handlerInput.attributesManager.getSessionAttributes().consulted;
     let available = ['mail', 'edificabilidad', 'protección', 'expediente', 'normativa', 'usos'];
-
     if (consulted.length < available.length) {
 
         let toConsult = available.filter( el => !consulted.includes(el) );
         if (toConsult.includes("mail")){
             return '¿Quieres que te envíe un correo con la información que he encontrado?'
         } else {
-            return 'Puedes preguntar por ' + toConsult.slice(1, 3).join(' o ') + ' en la misma ubicación'
+            return 'Puedes preguntar por ' + toConsult.slice(0, 2).join(' o ') + ' en la misma ubicación'
         }
 
     }
-    
+
+    return ''
     
 }
 

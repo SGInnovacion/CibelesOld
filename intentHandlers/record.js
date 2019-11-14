@@ -15,9 +15,9 @@ module.exports = async (street) => {
             console.log('[INFO] Last record:');
             console.log(lastRecord);
 
-            let speechText = current ? `El expediente vigente en ${address.parsedStreet} es el ${current[0].numero} con denominación ${current[0].denominacion}` :
-                lastRecord ? `El último expediente del histórico en ${address.parsedStreet} es el ${lastRecord.numero} con denominación ${lastRecord.denominacion}` :
-                    `No dispongo de información sobre expedientes para ${address.parsedStreet}`;
+            let speechText = current ? `El expediente vigente en ${address.parsedStreet} es el ${current[0].numero} con denominación ${current[0].denominacion}. ` :
+                lastRecord ? `El último expediente del histórico en ${address.parsedStreet} es el ${lastRecord.numero} con denominación ${lastRecord.denominacion}. ` :
+                    `No dispongo de información sobre expedientes para ${address.parsedStreet}. `;
 
             return speechText;
 
