@@ -300,8 +300,8 @@ exports.handler = Alexa.SkillBuilders.custom()
         RegulationsIntentHandler,
         RecordIntentHandler,
         MailIntentHandler,
-        IntentReflectorHandler,
-        NoIntentHandler, // make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
+        NoIntentHandler,
+        IntentReflectorHandler, // make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
     )
     .addErrorHandlers(
         ErrorHandler,

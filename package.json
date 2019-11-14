@@ -21,7 +21,6 @@
     "dynamodb-doc": "^1.0.0",
     "express": "^4.16.4",
     "googleapis": "^27.0.0",
-    "nodemailer-smtp-transport": "^2.7.4",
     "request": "^2.88.0",
     "request-promise": "^4.2.5"
   }
