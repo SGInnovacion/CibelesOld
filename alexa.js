@@ -45,7 +45,8 @@ async function parseAlexa(handlerInput, intentHandler, name = ''){
         requestInfo = { planeamiento: sessionAttrs.planeamiento, parsedStreet: sessionAttrs.street };
     }
 
-    const out = await intentHandler(requestInfo);
+    let out = await intentHandler(requestInfo);
+    out += getSuggestions(handlerInput);
     return alexaSpeak(handlerInput, out);
 }
 
@@ -214,9 +215,9 @@ const MailIntentHandler = {
 const getSuggestions = (handlerInput) => {
     let consulted = handlerInput.attributesManager.getSessionAttributes().consulted;
     let available = ['mail', 'edificabilidad', 'protección', 'expediente', 'normativa', 'usos'];
-    toConsult = available.filter( ( el ) => !consulted.includes( el ) );
+    let toConsult = available.filter( ( el ) => !consulted.includes( el ) );
 
-    if (toConsult.includes("Mail")){
+    if (toConsult.includes("mail")){
         return '¿Quieres que te envíe un correo con la información que he encontrado?'
     } else {
         return '¿Quieres preguntar por ' + toConsult.slice(1, 3).join(' o ') + ' en la misma ubicación?'
