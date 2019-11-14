@@ -207,9 +207,23 @@ const MailIntentHandler = {
     }
 };
 
+const getSuggestions = (handlerInput) => {
+    let consulted = handlerInput.attributesManager.getSessionAttributes().consulted;
+    let available = ['mail', 'edificabilidad', 'protección', 'expediente', 'normativa', 'usos'];
+    toConsult = available.filter( ( el ) => !consulted.includes( el ) );
+
+    if (toConsult.includes("Mail")){
+        return '¿Quieres que te envíe un correo con la información que he encontrado?'
+    } else {
+        return '¿Quieres preguntar por ' + toConsult.slice(1, 3).join(' o ') + ' en la misma ubicación?'
+
+    }
+
+}
+
 const HelpIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'AMAZON.HelpIntent'),
-    handle: (handlerInput) => alexaSpeak(handlerInput,'You can say hello to me! How can I help?')
+    handle: (handlerInput) => alexaSpeak(handlerInput,'Me puedes pregutar ¿qué puedes hacer?')
 };
 const CancelAndStopIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'AMAZON.CancelIntent') || alexaCanHandle(handlerInput, 'AMAZON.StopIntent'),
