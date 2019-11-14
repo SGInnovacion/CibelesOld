@@ -46,6 +46,7 @@ async function parseAlexa(handlerInput, intentHandler, name = ''){
     }
 
     let out = await intentHandler(requestInfo);
+    out += ' ';
     out += getSuggestions(handlerInput);
     return alexaSpeak(handlerInput, out, getSuggestions(handlerInput));
 }
@@ -216,7 +217,7 @@ const getSuggestions = (handlerInput) => {
     let consulted = handlerInput.attributesManager.getSessionAttributes().consulted;
     let available = ['mail', 'edificabilidad', 'protección', 'expediente', 'normativa', 'usos'];
     let toConsult = available.filter( el => !consulted.includes(el) );
-    
+
     if (toConsult.includes("mail")){
         return '¿Quieres que te envíe un correo con la información que he encontrado?'
     } else {
@@ -300,8 +301,9 @@ exports.handler = Alexa.SkillBuilders.custom()
         RegulationsIntentHandler,
         RecordIntentHandler,
         MailIntentHandler,
+        NoIntentHandler,
         IntentReflectorHandler,
-        NoIntentHandler, // make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
+         // make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
     )
     .addErrorHandlers(
         ErrorHandler,
