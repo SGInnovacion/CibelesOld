@@ -26,8 +26,6 @@ const general = async street => {
         speechText += 'Además, pertenece al Arrabal de Felipe II. ';
     }
 
-    speechText += '¿Quieres que te envíe un correo con la información que he encontrado?'
-
     return speechText;
 };
 
