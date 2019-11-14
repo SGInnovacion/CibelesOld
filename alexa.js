@@ -47,7 +47,7 @@ async function parseAlexa(handlerInput, intentHandler, name = ''){
 
     let out = await intentHandler(requestInfo);
     out += getSuggestions(handlerInput);
-    return alexaSpeak(handlerInput, out);
+    return alexaSpeak(handlerInput, out, getSuggestions(handlerInput));
 }
 
 function getPersistenceAdapter(tableName) {
