@@ -172,7 +172,7 @@ const RecordIntentHandler = {
 
 const NoIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'AMAZON.NoIntent'),
-    handle: async (handlerInput) => alexaSpeak(handlerInput, 'Genial. ¿Qué más quieres saber?')
+    handle: async (handlerInput) => alexaSpeak(handlerInput, 'Genial. ' + getSuggestions(handlerInput))
 };
 
 const MailIntentHandler = {
@@ -208,7 +208,7 @@ const MailIntentHandler = {
             let success = await sendMail(email, fillMail(planeamiento, street), street);
             console.log('success');
             console.log(success);
-            let out = 'Ya te lo he enviado, qué más quieres saber?';
+            let out = 'Ya te lo he enviado. ' + getSuggestions(handlerInput);
             return alexaSpeak(handlerInput, out);
         } catch (error) {
             console.log(error);
@@ -225,7 +225,7 @@ const getSuggestions = (handlerInput) => {
     if (toConsult.includes("mail")){
         return '¿Quieres que te envíe un correo con la información que he encontrado?'
     } else {
-        return '¿Quieres preguntar por ' + toConsult.slice(1, 3).join(' o ') + ' en la misma ubicación?'
+        return 'Puedes preguntar por ' + toConsult.slice(1, 3).join(' o ') + ' en la misma ubicación'
     }
 
 }
