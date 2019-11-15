@@ -28,10 +28,8 @@ async function parseAlexa(handlerInput, intentHandler, name = ''){
 
     let address = 'Alcalá 23';
     let requestInfo = '';
-    if(name === 'mail'){
-        requestInfo =  handlerInput.requestEnvelope.context.System;
-    }
-    else if(Street.value !== undefined && Number.value !== undefined){
+
+    if(Street.value !== undefined && Number.value !== undefined){
         console.log('New street requested');
         address = `${Street.value} ${Number.value}`;
         requestInfo = await getPlaneamiento(address);
@@ -39,6 +37,7 @@ async function parseAlexa(handlerInput, intentHandler, name = ''){
             street: requestInfo.parsedStreet,
             planeamiento: requestInfo.planeamiento,
             consulted: name !== '' ? [name] : [],
+            system: handlerInput.requestEnvelope.context.system,
         });
     } else {
         let sessionAttrs = handlerInput.attributesManager.getSessionAttributes();
