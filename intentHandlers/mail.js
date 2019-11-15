@@ -4,7 +4,7 @@ const fillMail = require('../mail').fillMail;
 const axios = require('axios');
 
 module.exports = async (street) => {
-    const { apiAccessToken, apiEndpoint, user } = street.system;
+    const { apiAccessToken, apiEndpoint, user } = street;
 
     const getEmailUrl = apiEndpoint.concat(
         `/v2/accounts/~current/settings/Profile.email`
@@ -23,8 +23,6 @@ module.exports = async (street) => {
 
     try {
         const email = mailResult && mailResult.data;
-
-        
         console.log('FILL')
         console.log(fillMail(street.planeamiento, street.parsedStreet))
         let success = await sendMail(email, fillMail(street.planeamiento, street.parsedStreet), street.parsedStreet);

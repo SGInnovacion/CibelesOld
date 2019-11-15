@@ -24,11 +24,14 @@ const alexaCanHandle = (handlerInput, intentName) => Alexa.getRequestType(handle
 const alexaSpeak = (handlerInput, speech, reprompt = speech) => handlerInput.responseBuilder.speak(speech).reprompt(reprompt).getResponse();
 
 async function parseAlexa(handlerInput, intentHandler, name = ''){
-    const { Street, Number } = handlerInput.requestEnvelope.request.intent.slots;    
-    
+    const { Street, Number } = handlerInput.requestEnvelope.request.intent.slots;
+
     let address = 'Alcalá 23';
     let requestInfo = '';
-    if(Street.value !== undefined && Number.value !== undefined){
+    if(name === 'mail'){
+        requestInfo =  handlerInput.requestEnvelope.context.System;
+    }
+    else if(Street.value !== undefined && Number.value !== undefined){
         console.log('New street requested');
         address = `${Street.value} ${Number.value}`;
         requestInfo = await getPlaneamiento(address);
