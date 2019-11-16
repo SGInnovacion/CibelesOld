@@ -21,10 +21,10 @@ const alexaCanHandle = (handlerInput, intentName) => Alexa.getRequestType(handle
 
 const alexaSpeak = (handlerInput, speech, reprompt = speech) => handlerInput.responseBuilder.speak(speech).reprompt(reprompt).getResponse();
 
-async function parseAlexa(handlerInput, intentHandler, newConsultName = ''){
+async function parseAlexa(handlerInput, intentHandler, newConsultName = []){
     const { Street, Number } = handlerInput.requestEnvelope.request.intent.slots;
     let sessionAttrs = handlerInput.attributesManager.getSessionAttributes();
-
+    console.log('sessionAttrs', sessionAttrs)
     let address = 'Alcalá 23';
     let planeamiento = '';
 
@@ -36,18 +36,20 @@ async function parseAlexa(handlerInput, intentHandler, newConsultName = ''){
             ...sessionAttrs,
             street: planeamiento.parsedStreet,
             planeamiento: planeamiento.planeamiento,
-            consulted: newConsultName !== '' ? [newConsultName] : [],
+            consulted: newConsultName !== [] ? newConsultName : [],
         });
     } else {
-        console.log('consulted', sessionAttrs.consulted);
+        console.log('newConsultName: ', newConsultName);
         setSessionParams(handlerInput, {
             ...sessionAttrs, 
-            consulted: sessionAttrs.consulted != undefined ? [...sessionAttrs.consulted, newConsultName] : [newConsultName]
+            consulted: sessionAttrs.consulted != undefined ? [...new Set(sessionAttrs.consulted.concat(newConsultName))] : newConsultName
         });
         planeamiento = {
             planeamiento: sessionAttrs.planeamiento, 
             parsedStreet: sessionAttrs.street,
         };
+        
+        console.log('consulted: ', sessionAttrs.consulted);
     }
 
     let out = await intentHandler(planeamiento, sessionAttrs.email);
@@ -71,6 +73,7 @@ function setSessionParams(handlerInput, params){
 const getSuggestions = (handlerInput) => {
     let consulted = handlerInput.attributesManager.getSessionAttributes().consulted;
     let available = ['mail', 'edificabilidad', 'protección', 'expediente', 'normativa', 'usos'];
+    console.log('getSuggestions//consulted: ', consulted);
     if (consulted.length < available.length) {
         let toConsult = available.filter( el => !consulted.includes(el) );
         if (toConsult.includes("mail")){
@@ -144,54 +147,54 @@ const LaunchRequestHandler = {
 
 const GeneralInfoIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'GeneralInfo'),
-    handle: async (handlerInput) => parseAlexa(handlerInput, getGeneralInfo, 'edificabilidad')
+    handle: async (handlerInput) => parseAlexa(handlerInput, getGeneralInfo, ['edificabilidad', 'protección', 'expediente', 'normativa', 'usos'])
 };
 
 const EdificabilityIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Edificability'),
-    handle: async (handlerInput) => parseAlexa(handlerInput, getEdificability, 'edificabilidad')
+    handle: async (handlerInput) => parseAlexa(handlerInput, getEdificability, ['edificabilidad'])
 };
 const ProtectionGeneralIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'ProtectionGeneral'),
-    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.general, 'protección')
+    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.general, ['protección'])
 };
 
 const ProtectionCatalogueIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'ProtectionCatalogue'),
-    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.catalogue, 'protección')
+    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.catalogue, ['protección'])
 };
 
 const ProtectionApeIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'ProtectionApe'),
-    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.ape, 'protección')
+    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.ape, ['protección'])
 };
 
 const ProtectionFelipeIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'ProtectionFelipe'),
-    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.felipe, 'protección')
+    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.felipe, ['protección'])
 };
 
 const ProtectionBipIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'ProtectionBip'),
-    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.bip, 'protección')
+    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.bip, ['protección'])
 };
 
 const ProtectionBicIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'ProtectionBic'),
-    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.bic, 'protección')
+    handle: async (handlerInput) => parseAlexa(handlerInput, getProtection.bic, ['protección'])
 };
 
 const UseIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Use'),
-    handle: async (handlerInput) => parseAlexa(handlerInput, getUse, 'usos')
+    handle: async (handlerInput) => parseAlexa(handlerInput, getUse, ['usos'])
 };
 const RegulationsIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Regulations'),
-    handle: async (handlerInput) => parseAlexa(handlerInput, getRegulations, 'normativa')
+    handle: async (handlerInput) => parseAlexa(handlerInput, getRegulations, ['normativa'])
 };
 const RecordIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Record'),
-    handle: async (handlerInput) => parseAlexa(handlerInput, getRecord, 'expediente')
+    handle: async (handlerInput) => parseAlexa(handlerInput, getRecord, ['expediente'])
 };
 
 const NoIntentHandler = {
@@ -205,7 +208,7 @@ const NoIntentHandler = {
 
 const MailIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Mail'),
-    handle: async (handlerInput) => parseAlexa(handlerInput, getMail, 'mail')
+    handle: async (handlerInput) => parseAlexa(handlerInput, getMail, ['mail', 'edificabilidad', 'protección', 'expediente', 'normativa', 'usos'])
 };
 
 const HelpIntentHandler = {
@@ -226,7 +229,8 @@ const SessionEndedRequestHandler = {
         // Any cleanup logic goes here.
         let street = handlerInput.attributesManager.getSessionAttributes().street;
         let planeamiento = handlerInput.attributesManager.getSessionAttributes().planeamiento;
-        handlerInput.attributesManager.setPersistentAttributes({street: street, planeamiento: planeamiento});
+        let consulted = handlerInput.attributesManager.getSessionAttributes().consulted;
+        handlerInput.attributesManager.setPersistentAttributes({street: street, planeamiento: planeamiento, consulted: consulted});
         await handlerInput.attributesManager.savePersistentAttributes();
         return handlerInput.responseBuilder.getResponse();
     }
@@ -257,7 +261,7 @@ const ErrorHandler = {
     },
     handle(handlerInput, error) {
         console.log(`~~~~ Error handled: ${error.stack}`);
-        const speakOutput = `La que has liado! Por favor comunica a mis creadores que me has dicho para que me puedan arreglar. `;
+        const speakOutput = `La que has liado! Por favor comunica a mis creadores qué me has dicho para que me puedan arreglar. `;
         return alexaSpeak(handlerInput, speakOutput);
     }
 };
