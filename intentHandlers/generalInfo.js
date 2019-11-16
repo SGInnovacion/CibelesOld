@@ -47,7 +47,7 @@ module.exports = async (street) => {
           lastRecord ? `El último expediente del histórico es el ${lastRecord.numero} con denominación ${lastRecord.denominacion}` :
               '';
 
-      return speechText + '¿Quieres que te lo envíe por correo?'
+      return speechText
 
 };
 

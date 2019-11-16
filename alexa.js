@@ -8,8 +8,6 @@ const { planeamientoNdp, bdcSearch, getPlaneamiento } = require('./APIs');
 const {sendMail} = require('./utils');
 const fillMail = require('./mail').fillMail;
 
-
-
 const getProtection = require('./intentHandlers/protection');
 const getRecord = require('./intentHandlers/record');
 const getUse = require('./intentHandlers/use');
@@ -23,38 +21,36 @@ const alexaCanHandle = (handlerInput, intentName) => Alexa.getRequestType(handle
 
 const alexaSpeak = (handlerInput, speech, reprompt = speech) => handlerInput.responseBuilder.speak(speech).reprompt(reprompt).getResponse();
 
-async function parseAlexa(handlerInput, intentHandler, name = ''){
+async function parseAlexa(handlerInput, intentHandler, newConsultName = ''){
     const { Street, Number } = handlerInput.requestEnvelope.request.intent.slots;
     let sessionAttrs = handlerInput.attributesManager.getSessionAttributes();
 
-
     let address = 'Alcalá 23';
-    let requestInfo = '';
-
+    let planeamiento = '';
 
     if(Street.value !== undefined && Number.value !== undefined){
         console.log('New street requested');
         address = `${Street.value} ${Number.value}`;
-        requestInfo = await getPlaneamiento(address);
+        planeamiento = await getPlaneamiento(address);
         setSessionParams(handlerInput, {
             ...sessionAttrs,
-            street: requestInfo.parsedStreet,
-            planeamiento: requestInfo.planeamiento,
-            consulted: name !== '' ? [name] : [],
+            street: planeamiento.parsedStreet,
+            planeamiento: planeamiento.planeamiento,
+            consulted: newConsultName !== '' ? [newConsultName] : [],
         });
     } else {
         console.log('consulted', sessionAttrs.consulted);
         setSessionParams(handlerInput, {
             ...sessionAttrs, 
-            consulted: sessionAttrs.consulted != undefined ? [...sessionAttrs.consulted, name] : [name]
+            consulted: sessionAttrs.consulted != undefined ? [...sessionAttrs.consulted, newConsultName] : [newConsultName]
         });
-        requestInfo = {
+        planeamiento = {
             planeamiento: sessionAttrs.planeamiento, 
             parsedStreet: sessionAttrs.street,
         };
     }
 
-    let out = await intentHandler(requestInfo, sessionAttrs.email);
+    let out = await intentHandler(planeamiento, sessionAttrs.email);
     out += ' ';
     out += getSuggestions(handlerInput);
     return alexaSpeak(handlerInput, out, getSuggestions(handlerInput));
@@ -144,6 +140,11 @@ const LaunchRequestHandler = {
             .reprompt(speakOutput)
             .getResponse();
     }
+};
+
+const GeneralInfoIntentHandler = {
+    canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'GeneralInfo'),
+    handle: async (handlerInput) => parseAlexa(handlerInput, getGeneralInfo, 'edificabilidad')
 };
 
 const EdificabilityIntentHandler = {
