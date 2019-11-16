@@ -230,7 +230,7 @@ const SessionEndedRequestHandler = {
         let street = handlerInput.attributesManager.getSessionAttributes().street;
         let planeamiento = handlerInput.attributesManager.getSessionAttributes().planeamiento;
         let consulted = handlerInput.attributesManager.getSessionAttributes().consulted;
-        handlerInput.attributesManager.setPersistentAttributes({street: street, planeamiento: planeamiento, consulted: consulted});
+        handlerInput.attributesManager.setPersistentAttributes({street: street, planeamiento: planeamiento});
         await handlerInput.attributesManager.savePersistentAttributes();
         return handlerInput.responseBuilder.getResponse();
     }
