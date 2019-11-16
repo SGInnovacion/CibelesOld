@@ -1,33 +1,10 @@
-const { getPlaneamiento } = require('../APIs');
-const {sendMail} = require('../utils');
-const fillMail = require('../mail').fillMail;
-const axios = require('axios');
+const { sendMail } = require('../utils');
+const { fillMail } = require('../mail');
 
-module.exports = async (street) => {
-    const { apiAccessToken, apiEndpoint, user } = street;
-
-    const getEmailUrl = apiEndpoint.concat(
-        `/v2/accounts/~current/settings/Profile.email`
-    );
-    let mailResult = "";
+module.exports = async (street, email) => {
     try {
-        mailResult = await axios.get(getEmailUrl, {
-            headers: {
-                Accept: "application/json",
-                Authorization: "Bearer " + apiAccessToken
-            }
-        });
-    } catch (error) {
-        console.log(error);
-    }
-
-    try {
-        const email = mailResult && mailResult.data;
-        console.log('FILL')
-        console.log(fillMail(street.planeamiento, street.parsedStreet))
+        console.log('fillMail', fillMail(street.planeamiento, street.parsedStreet))
         let success = await sendMail(email, fillMail(street.planeamiento, street.parsedStreet), street.parsedStreet);
-        console.log('success');
-        console.log(success);
         let out = 'Ya te lo he enviado. ';
         return out
     } catch (error) {

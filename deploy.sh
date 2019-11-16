@@ -1,5 +1,5 @@
-echo 'Installing dependencies...'
-npm install
+#echo 'Installing dependencies...'
+#npm install
 echo 'Compressing deployment package...'
 zip -ru webhook.zip *
 

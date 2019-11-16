@@ -25,28 +25,36 @@ const alexaSpeak = (handlerInput, speech, reprompt = speech) => handlerInput.res
 
 async function parseAlexa(handlerInput, intentHandler, name = ''){
     const { Street, Number } = handlerInput.requestEnvelope.request.intent.slots;
+    let sessionAttrs = handlerInput.attributesManager.getSessionAttributes();
+
 
     let address = 'Alcalá 23';
     let requestInfo = '';
+
 
     if(Street.value !== undefined && Number.value !== undefined){
         console.log('New street requested');
         address = `${Street.value} ${Number.value}`;
         requestInfo = await getPlaneamiento(address);
         setSessionParams(handlerInput, {
+            ...sessionAttrs,
             street: requestInfo.parsedStreet,
             planeamiento: requestInfo.planeamiento,
             consulted: name !== '' ? [name] : [],
-            system: handlerInput.requestEnvelope.context.system,
         });
     } else {
-        let sessionAttrs = handlerInput.attributesManager.getSessionAttributes();
         console.log('consulted', sessionAttrs.consulted);
-        setSessionParams(handlerInput, {...sessionAttrs, consulted: sessionAttrs.consulted != undefined ? [...sessionAttrs.consulted, name] : [name]});
-        requestInfo = { planeamiento: sessionAttrs.planeamiento, parsedStreet: sessionAttrs.street, system: handlerInput.requestEnvelope.context.system};
+        setSessionParams(handlerInput, {
+            ...sessionAttrs, 
+            consulted: sessionAttrs.consulted != undefined ? [...sessionAttrs.consulted, name] : [name]
+        });
+        requestInfo = {
+            planeamiento: sessionAttrs.planeamiento, 
+            parsedStreet: sessionAttrs.street,
+        };
     }
 
-    let out = await intentHandler(requestInfo);
+    let out = await intentHandler(requestInfo, sessionAttrs.email);
     out += ' ';
     out += getSuggestions(handlerInput);
     return alexaSpeak(handlerInput, out, getSuggestions(handlerInput));
@@ -126,8 +134,8 @@ const LaunchRequestHandler = {
         let speakOutput = `Hola, soy Cibeles. Estoy preparada para responderte a preguntas urbanísticas sobre usos, edificabilidades, normativa, protección o expedientes. ¿Sobre qué quieres información?`;
 
         if(Object.keys(attributes).length > 0){
-            attributesManager.setSessionAttributes(attributes);
-            console.log('Attributes', attributes);
+            attributesManager.setSessionAttributes({...attributes, email: email});
+            console.log('Attributes');
             speakOutput = `Hola ${name}, puedo seguir informándote sobre ${attributes.street} o puedes consultarme sobre una dirección nueva`;
         }
 
