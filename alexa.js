@@ -54,8 +54,8 @@ async function parseAlexa(handlerInput, intentHandler, newConsultName = []){
 
     let out = await intentHandler(planeamiento, sessionAttrs.email);
     out += ' ';
-    out += getSuggestions(handlerInput);
-    return alexaSpeak(handlerInput, out, getSuggestions(handlerInput));
+    out += getSuggestions(out, handlerInput);
+    return alexaSpeak(handlerInput, out, getSuggestions(out, handlerInput));
 }
 
 function getPersistenceAdapter(tableName) {
@@ -70,16 +70,18 @@ function setSessionParams(handlerInput, params){
     handlerInput.attributesManager.setSessionAttributes(params)
 }
 
-const getSuggestions = (handlerInput) => {
-    let consulted = handlerInput.attributesManager.getSessionAttributes().consulted;
+
+const getSuggestions = (out, handlerInput) => {
+    let sessionAttrs = handlerInput.attributesManager.getSessionAttributes()
+    let consulted = sessionAttrs.consulted;
     let available = ['mail', 'edificabilidad', 'protección', 'expediente', 'normativa', 'usos'];
     console.log('getSuggestions//consulted: ', consulted);
     if (consulted.length < available.length) {
-        let toConsult = available.filter( el => !consulted.includes(el) );
-        if (toConsult.includes("mail")){
+        let toConsult = available.filter( el => !consulted.includes(el) ).slice(0, 2);
+        if (toConsult.includes("mail") && !out.includes("No hay información")){
             return '¿Quieres que te envíe un correo con la información que he encontrado?'
         } else {
-            return 'Puedes preguntar por ' + toConsult.slice(0, 2).join(' o ') + ' en la misma ubicación'
+            return 'Puedes preguntar por ' + toConsult.join(' o ') + ' en la misma ubicación'
         }
     }
     return ''
