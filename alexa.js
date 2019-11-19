@@ -28,9 +28,9 @@ async function parseAlexa(handlerInput, intentHandler, newConsultName = []){
     let address = 'Alcalá 23';
     let planeamiento = '';
 
-    if(Street.value !== undefined && Number.value !== undefined){
+    if(Street.value !== undefined){
         console.log('New street requested');
-        address = `${Street.value} ${Number.value}`;
+        address = Number.value !== undefined ? `${Street.value} ${Number.value}` : Street.value
         planeamiento = await getPlaneamiento(address);
         setSessionParams(handlerInput, {
             ...sessionAttrs,
@@ -54,8 +54,8 @@ async function parseAlexa(handlerInput, intentHandler, newConsultName = []){
 
     let out = await intentHandler(planeamiento, sessionAttrs.email);
     out += ' ';
-    out += getSuggestions(out, handlerInput);
-    return alexaSpeak(handlerInput, out, getSuggestions(out, handlerInput));
+    out += getSuggestions(handlerInput,out);
+    return alexaSpeak(handlerInput, out, getSuggestions(handlerInput,out));
 }
 
 function getPersistenceAdapter(tableName) {
@@ -71,7 +71,7 @@ function setSessionParams(handlerInput, params){
 }
 
 
-const getSuggestions = (out, handlerInput) => {
+const getSuggestions = (handlerInput, out='') => {
     let sessionAttrs = handlerInput.attributesManager.getSessionAttributes()
     let consulted = sessionAttrs.consulted;
     let available = ['mail', 'edificabilidad', 'protección', 'expediente', 'normativa', 'usos'];
@@ -204,7 +204,8 @@ const NoIntentHandler = {
     handle: async (handlerInput) => {
         let sessionAttrs = handlerInput.attributesManager.getSessionAttributes();
         setSessionParams(handlerInput, {...sessionAttrs, consulted: [...sessionAttrs.consulted, 'mail']});
-        return alexaSpeak(handlerInput, 'Genial. ' + getSuggestions(handlerInput));
+        let asserter = ["Vale", "Genial", "Maravilloso", "Estupendo", "De acuerdo", "Fabuloso", "De lujo"].random() + '. ';
+        return alexaSpeak(handlerInput, asserter + getSuggestions(handlerInput));
     }
 };
 
@@ -248,7 +249,7 @@ const IntentReflectorHandler = {
     },
     handle(handlerInput) {
         const intentName = Alexa.getIntentName(handlerInput.requestEnvelope);
-        const speakOutput = `You just triggered ${intentName}`;
+        const speakOutput = `Has activado ${intentName}. Comunicaselo a mis creadores.`;
 
         return alexaSpeak(handlerInput, speakOutput)
     }
@@ -267,6 +268,10 @@ const ErrorHandler = {
         return alexaSpeak(handlerInput, speakOutput);
     }
 };
+
+Array.prototype.random = function(){
+  return this[Math.floor(Math.random()*this.length)];
+}
 
 // The SkillBuilder acts as the entry point for your skill, routing all request and response
 // payloads to the handlers above. Make sure any new handlers or interceptors you've

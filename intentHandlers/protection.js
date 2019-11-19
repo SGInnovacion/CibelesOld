@@ -19,11 +19,11 @@ const general = async street => {
         : 'No forma parte del patrimonio de la Comunidad de Madrid. ';
 
     if(perteneceArrabalFelipeII && perteneceAPE0001){
-        speechText += 'Además, pertenece al Arrabal de Felipe II y al APE0001. ';
+        speechText += 'Además, pertenece a la cerca y Arrabal de Felipe II y al APE0001. ';
     } else if(perteneceAPE0001) {
         speechText += 'Además, pertenece al APE0001. ';
     } else if(perteneceArrabalFelipeII) {
-        speechText += 'Además, pertenece al Arrabal de Felipe II. ';
+        speechText += 'Además, pertenece la cerca y Arrabal de Felipe II. ';
     }
 
     return speechText;
@@ -35,8 +35,8 @@ const felipe = async street => {
     const perteneceArrabalFelipeII = response.parcela.perteneceArrabalFelipeII === 'true';
     console.log('[INFO] Pertenece felipe o ape:');
     console.log(perteneceArrabalFelipeII);
-    const speechText = perteneceArrabalFelipeII ? `Sí, ${address.parsedStreet} pertenece al Arrabal de Felipe II.`
-        : `No, ${address.parsedStreet} no pertenece al Arrabal de Felipe II.`;
+    const speechText = perteneceArrabalFelipeII ? `Sí, ${address.parsedStreet} pertenece la cerca y Arrabal de Felipe II.`
+        : `No, ${address.parsedStreet} no pertenece la cerca y Arrabal de Felipe II.`;
     console.log(speechText);
     return speechText;
 };
