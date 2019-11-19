@@ -5,5 +5,5 @@ module.exports = async (street) => {
     let address = (typeof street === 'string') ? await getPlaneamiento(street) : street;
     let area = address.planeamiento.parcela.usos[0].usoEdificabilidad;
     return (area==='---') ? `No hay información de eficiabilidad en ${address.parsedStreet}. ` :
-        `En ${address.parsedStreet} se puede construir ${area.replace(".", ",")} metros cuadrados del uso cualificado residencial vivienda colectiva.`;
+        `En ${address.parsedStreet} se pueden construir ${area.replace(".", ",")} metros cuadrados del uso cualificado residencial vivienda colectiva.`;
 };
