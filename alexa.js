@@ -41,14 +41,14 @@ async function parseAlexa(handlerInput, intentHandler, newConsultName = []){
     } else {
         console.log('newConsultName: ', newConsultName);
         setSessionParams(handlerInput, {
-            ...sessionAttrs, 
+            ...sessionAttrs,
             consulted: sessionAttrs.consulted != undefined ? [...new Set(sessionAttrs.consulted.concat(newConsultName))] : newConsultName
         });
         planeamiento = {
-            planeamiento: sessionAttrs.planeamiento, 
+            planeamiento: sessionAttrs.planeamiento,
             parsedStreet: sessionAttrs.street,
         };
-        
+
         console.log('consulted: ', sessionAttrs.consulted);
     }
 
@@ -221,7 +221,7 @@ const HelpIntentHandler = {
 const CancelAndStopIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'AMAZON.CancelIntent') || alexaCanHandle(handlerInput, 'AMAZON.StopIntent'),
     handle(handlerInput) {
-        return alexaSpeak(handlerInput,'Adiós')
+        return handlerInput.responseBuilder.speak('Adiós').getResponse();
     }
 };
 const SessionEndedRequestHandler = {

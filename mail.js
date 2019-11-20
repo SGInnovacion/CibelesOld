@@ -207,22 +207,20 @@ body{
     width:100% !important;
 }
 .logo{
- height: 80%; 
- max-width: 50%; 
  object-fit: contain;
 }
 .general-info{
-     padding: 0.7em;
+     padding: 0.3em;
 }
 .section-title{
      font-size: 1.5em;
      text-decoration: underline;
-     margin-bottom: 0.7em;
+     margin-bottom: 0.3em;
 }
 .section-info{
      display: flex;
      flex-direction: row;
-     padding: 0.7em;
+     padding: 0.3em;
      margin-bottom: 15px;
 }
 @media (max-width: 500px) {
@@ -231,7 +229,7 @@ body{
      }
 
      .col-izda{
-          padding: 0.7em;
+          padding: 0.3em;
      }
 }
 .col-izda{
@@ -243,7 +241,7 @@ body{
 .uses-table{
      background-color: #f5f5f5;
      flex: 1;
-     padding: 0.7em;
+     padding: 0.3em;
 }
 .uses-table tr{
      line-height: 2em;
@@ -264,39 +262,29 @@ body{
     text-decoration: none;
 }
 .expediente{
-     padding: 0.7em;
+     padding: 0.3em;
 }
 .proteccion{
-     background-color: #003df6;
+     background-color: #f5f5f5;
      padding: 1.4em;
      color: white;
-     margin: 0.7em;
+     margin: 0.3em;
 }
 .patr-table{
     margin-bottom: 2em;
 }
 .patrimonio-cam{
-     background-color: #eef2ff;
+     background-color: #f5f5f5;
      padding: 1.4em;
      color: black;
-     margin: 0.7em;
+     margin: 0.3em;
 }
 .historico{
-     padding: 0.7em;
+     padding: 0.3em;
 }
 .planeamiento{
-     padding: 0.7em;
+     padding: 0.3em;
 }
-.footer{
-     display: flex;
-     background-color: #003df6;
-     justify-content: space-between;
-     align-items: center;
-     height: 3em;
-     color: white;
-     padding: 1.4em;
-}
-
 </style>
 `;
 const fillMail = (plan = '', address) => {
@@ -319,10 +307,10 @@ const fillMail = (plan = '', address) => {
             <body>
             <table border="0" cellpadding="0" cellspacing="0" class="container" width="100%" style="height: 50px; width: 100%; background-color: #003df6">
                 <tr>
-                    <td align="left" style="padding: 16px;">
-                        <span style="font-size: 1.5em; color: white">Ficha urbanismo</span>
+                    <td align="left" width="60%" style="padding: 8px;">
+                        <span style="font-size: 1.5em; color: white">Urbanismo</span>
                     </td>
-                    <td align="right" style="padding: 16px;">
+                    <td align="right" width="40%" style="padding: 5px;">
                         <img class='logo' style="height: 40px; object-fit: contain" src="https://identidad.madrid.es/wp-content/uploads/2018/12/firma_madrid_blanco.png">
                     </td>
                 </tr>
@@ -341,7 +329,7 @@ const fillMail = (plan = '', address) => {
                       <div class="col-dcha">
                            <table class='uses-table' style="width:100%">
                                   <tr>
-                                    <th align="left" class='table-title' style="font-size: 1.3em;"><b>Principal: (5)</b></th>
+                                    <th align="left" class='table-title' style="font-size: 1.3em;"><b>Principal:</b></th>
                                     <th></th>
                                   </tr>
                                   ${parseMainUse(plan.parcela.usos[0])}
