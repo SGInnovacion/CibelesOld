@@ -30,7 +30,7 @@ async function parseAlexa(handlerInput, intentHandler, newConsultName = []){
 
     if(Street.value !== undefined){
         console.log('New street requested');
-        address = Number.value !== undefined ? `${Street.value} ${Number.value}` : Street.value
+        address = Number.value !== undefined ? `${Street.value} ${Number.value}` : Street.value + '1';
         planeamiento = await getPlaneamiento(address);
         setSessionParams(handlerInput, {
             ...sessionAttrs,
@@ -77,10 +77,11 @@ const getSuggestions = (handlerInput, out='') => {
     let available = ['mail', 'edificabilidad', 'protección', 'expediente', 'normativa', 'usos'];
     console.log('getSuggestions//consulted: ', consulted);
     if (consulted.length < available.length) {
-        let toConsult = available.filter( el => !consulted.includes(el) ).slice(0, 2);
-        if (toConsult.includes("mail") && !out.includes("No hay información")){
+        let toConsult = available.filter( el => !consulted.includes(el) );
+        if (toConsult.includes("mail") && (!out.includes("No hay información") && !out.includes("no está protegido."))){
             return '¿Quieres que te envíe un correo con la información que he encontrado?'
         } else {
+            toConsult = toConsult.filter( el => el != 'mail').slice(0, 2)
             return 'Puedes preguntar por ' + toConsult.join(' o ') + ' en la misma ubicación'
         }
     }
