@@ -326,10 +326,16 @@ const fillMail = (plan = '', address) => {
                 <title>Test Email Sample</title>
             </head>
             <body>
-            <div class="header" style="display: flex; background-color: #003df6; justify-content: space-between; align-items: center; height: 5em; color: white; padding: 10px ">
-                 <span style="font-size: 1.5em">Ficha urbanismo</span>
-                 <img class='logo' style="height: 80%; max-width: 50%; object-fit: contain" src="https://identidad.madrid.es/wp-content/uploads/2018/12/firma_madrid_blanco.png">
-            </div>
+            <table border="0" cellpadding="0" cellspacing="0" class="container" width="100%" style="height: 50px; width: 100%; background-color: #003df6">
+                <tr>
+                    <td align="left" style="padding: 16px;">
+                        <span style="font-size: 1.5em; color: white">Ficha urbanismo</span>
+                    </td>
+                    <td align="right" style="padding: 16px;">
+                        <img class='logo' style="height: 40px; object-fit: contain" src="https://identidad.madrid.es/wp-content/uploads/2018/12/firma_madrid_blanco.png">
+                    </td>
+                </tr>
+            </table>
             <div class="sub-header" style=" display: flex; background-color: black; justify-content: space-between; align-items: center; height: 2em; color: white; padding: 10px; font-size: 1em; margin-bottom: 15px;">
                  Esta es toda la información urbanística que disponemos de ${address}
             </div>
@@ -390,10 +396,6 @@ const fillMail = (plan = '', address) => {
                 ` : ''}
 
         </div>
-        </div>
-        <div class="footer">
-             <span class='header-title'>Ayuntaminto de Madrid</span>
-             <img class='logo' src="https://identidad.madrid.es/wp-content/uploads/2018/12/firma_madrid_blanco.png">
         </div>
         </body>
         </html>
