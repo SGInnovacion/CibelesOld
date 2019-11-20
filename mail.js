@@ -173,26 +173,17 @@ const parseHistoricoExpte = history => {
             else {
                 out = `
                                 <table class='planeamiento-table' style="width:100%">
-                                     <tr>
-                                          <th align="left" class='table-title' style="font-size: 1.3em;">
-                                               <b>Número</b></th>
-                                          <th align="left" class='table-title' style="font-size: 1.3em;">
-                                               <b>Denominación</b></th>
-                                          <th align="left" class='table-title' style="font-size: 1.3em;">
-                                               <b>Fase</b></th>
-                                          <th align="left" class='table-title' style="font-size: 1.3em;">
-                                               <b>Fecha</b></th>
-                                     </tr>
                                    `;
 
                 history.map(h => {
                     out += `
                               <tr>
-                                <td>${h.numero}</td>
-                                <td>${h.denominacion}</td>
-                                <td>${h.fase}</td>
-                                <td>${h.fechaAprobacion}</td>
+                                <td>${h.numero} ${h.denominacion}</td>
                               </tr>
+                              <tr>
+                                <td>${h.fase} ${h.fechaAprobacion}</td>
+                              </tr>
+                              <tr><td></td></tr>
                     `;
                 });
 
@@ -336,7 +327,7 @@ const fillMail = (plan = '', address) => {
                     </td>
                 </tr>
             </table>
-            <div class="sub-header" style=" display: flex; background-color: black; justify-content: space-between; align-items: center; height: 2em; color: white; padding: 10px; font-size: 1em; margin-bottom: 15px;">
+            <div class="sub-header" style="  background-color: black;  color: white; padding: 15px; font-size: 1em; margin-bottom: 15px;">
                  Esta es toda la información urbanística que disponemos de ${address}
             </div>
             
