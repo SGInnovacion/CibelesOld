@@ -33,11 +33,30 @@ router.post('/', (request, response) => {
     const fallback = agent => recordQuery(agent, "Default fallback");
 
     async function parseDialog(agent, intentHandler){
-        const street = agent.parameters.address || 'alcalá 23';
+        let street = agent.parameters.address;
+
+        if (street.length > 0) {
+            console.log('A new street was received');
+        } else {
+            try {
+                street = agent.getContext('session-variables').parameters.street;
+                console.log('We will be using the street stored in the session-variables');
+            } catch (e) {
+                console.log(e);
+                console.log('There is no street stored, we will ask the user for one');
+                agent.add('¿Puedes decirme la calle?');
+                return
+            }
+        }
+
+        agent.setContext({ name: 'session-variables',
+            lifespan: 99999,
+            parameters: { street: street}
+        });
+
         let out = await intentHandler(street);
         console.log(out);
         agent.add(out);
-        // agent.add(out);
     }
 
     // Run the proper function handler based on the matched Dialogflow intent name
