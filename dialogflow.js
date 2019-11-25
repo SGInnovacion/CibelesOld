@@ -42,7 +42,6 @@ router.post('/', (request, response) => {
                 street = agent.getContext('session-variables').parameters.street;
                 console.log('We will be using the street stored in the session-variables');
             } catch (e) {
-                console.log(e);
                 console.log('There is no street stored, we will ask the user for one');
                 agent.add('¿Puedes decirme la calle?');
                 return
