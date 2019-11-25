@@ -36,6 +36,7 @@ async function parseAlexa(handlerInput, intentHandler, newConsultName = []){
             ...sessionAttrs,
             street: planeamiento.parsedStreet,
             planeamiento: planeamiento.planeamiento,
+            history: sessionAttrs.hasOwnProperty('history') ? [...sessionAttrs.history, planeamiento.parsedStreet] : [planeamiento.parsedStreet],
             consulted: newConsultName !== [] ? newConsultName : [],
         });
     } else {
