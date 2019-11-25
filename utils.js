@@ -2,15 +2,17 @@ const AWS = require('aws-sdk');
 let dynamoDB = new AWS.DynamoDB();
 const http = require('http');
 
+
 const recordStreet = async (street) => {
   try {
       let params = {
           TableName: 'Addresses',
           Key: {
-              'name': { S: street }},
-          UpdateExpression: 'SET val = val + :inc',
+              'address': { S: street }},
+          UpdateExpression: 'SET #val = if_not_exists(#val, :zero) + :inc',
+          ExpressionAttributeNames: { '#val': 'Value' },
           ExpressionAttributeValues: {
-              ':inc': { N: '1' }},
+              ':inc': { N: '1' }, ':zero': { N: '0' }},
           ReturnValues: 'ALL_NEW'
       };
         console.log("Invoked counter-test");
@@ -26,6 +28,10 @@ const recordStreet = async (street) => {
       console.log(err, err.stack);
       return { statusCode: 400 }
     }
+};
+
+const recordManyStreets = async (streets) => {
+    return streets.map(async street => await recordStreet(street));
 };
 
 const dynamoRecord = (queries, correct, attendedBy, tableName) => {
@@ -187,4 +193,5 @@ module.exports = {
     toTitleCase,
     getUserParams,
     sendMail,
+    recordManyStreets
 };
