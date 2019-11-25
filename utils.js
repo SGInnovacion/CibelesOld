@@ -2,6 +2,32 @@ const AWS = require('aws-sdk');
 let dynamoDB = new AWS.DynamoDB();
 const http = require('http');
 
+const recordStreet = async (street) => {
+  try {
+      let params = {
+          TableName: 'Addresses',
+          Key: {
+              'name': { S: street }},
+          UpdateExpression: 'SET val = val + :inc',
+          ExpressionAttributeValues: {
+              ':inc': { N: '1' }},
+          ReturnValues: 'ALL_NEW'
+      };
+        console.log("Invoked counter-test");
+        const data = await dynamoDB.updateItem(params).promise();
+        console.log(data);
+        console.log("Updated counter");
+        const response = {
+            statusCode: 200,
+            body: JSON.stringify('Counter updated'),
+        };
+        return response;
+    } catch (err) {
+      console.log(err, err.stack);
+      return { statusCode: 400 }
+    }
+};
+
 const dynamoRecord = (queries, correct, attendedBy, tableName) => {
     let query =  {
         RequestItems: {
