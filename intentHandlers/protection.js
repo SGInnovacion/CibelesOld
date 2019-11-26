@@ -36,11 +36,11 @@ const felipe = async street => {
     let address = (typeof street === 'string') ? await getPlaneamiento(street) : street;
     const response = address.planeamiento;    console.log(response);
     const perteneceArrabalFelipeII = response.parcela.perteneceArrabalFelipeII === 'true';
-    console.log('[INFO] Pertenece felipe o ape:');
-    console.log(perteneceArrabalFelipeII);
+    console.log('Pertenece felipe o ape:', perteneceArrabalFelipeII);
+
     const speechText = perteneceArrabalFelipeII ? `Sí, ${address.parsedStreet} pertenece la cerca y Arrabal de Felipe II.`
         : `No, ${address.parsedStreet} no pertenece la cerca y Arrabal de Felipe II.`;
-    console.log(speechText);
+    console.log('speechText: ', speechText);
     return speechText;
 };
 
