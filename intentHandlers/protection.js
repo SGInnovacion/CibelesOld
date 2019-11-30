@@ -15,7 +15,7 @@ const general = async street => {
     const affectedPatrimonio = patrimonioHistorico && patrimonioHistorico.length !== 0;
 
     
-    speechText += anyCatalogue ? `tiene un grado de protección ${catalogo[anyCatalogue][0].proteccionActual} como ${anyCatalogue}.` : '';
+    speechText += anyCatalogue ? `tiene un grado de protección ${catalogo[anyCatalogue][0].proteccionActual} como ${anyCatalogue}. ` : '';
     speechText += affectedPatrimonio ? 'Forma parte del Patrimonio Histórico de la Comunidad de Madrid. '
         : '';
 
