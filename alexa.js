@@ -5,7 +5,7 @@ const ddbTableName = 'CibelesConcept';
 const axios = require('axios');
 
 const { planeamientoNdp, bdcSearch, getPlaneamiento } = require('./APIs');
-const {sendMail} = require('./utils');
+const { recordManyStreets } = require('./utils');
 const fillMail = require('./mail').fillMail;
 
 const getProtection = require('./intentHandlers/protection');
@@ -36,6 +36,7 @@ async function parseAlexa(handlerInput, intentHandler, newConsultName = []){
             ...sessionAttrs,
             street: planeamiento.parsedStreet,
             planeamiento: planeamiento.planeamiento,
+            history: sessionAttrs.hasOwnProperty('history') ? [...sessionAttrs.history, planeamiento.parsedStreet] : [planeamiento.parsedStreet],
             consulted: newConsultName !== [] ? newConsultName : [],
         });
     } else {
@@ -221,7 +222,11 @@ const HelpIntentHandler = {
 };
 const CancelAndStopIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'AMAZON.CancelIntent') || alexaCanHandle(handlerInput, 'AMAZON.StopIntent'),
-    handle(handlerInput) {
+    async handle(handlerInput) {
+        let history = handlerInput.attributesManager.getSessionAttributes().history;
+        console.log('Recordingn streets: ' + history);
+        await recordManyStreets(history);
+        console.log('Streets recorded');
         return handlerInput.responseBuilder.speak('Adiós').getResponse();
     }
 };
@@ -234,6 +239,10 @@ const SessionEndedRequestHandler = {
         let street = handlerInput.attributesManager.getSessionAttributes().street;
         let planeamiento = handlerInput.attributesManager.getSessionAttributes().planeamiento;
         let consulted = handlerInput.attributesManager.getSessionAttributes().consulted;
+        let history = handlerInput.attributesManager.getSessionAttributes().history;
+        console.log('Recordingn streets: ' + history);
+        await recordManyStreets(history);
+        console.log('Streets recorded');
         handlerInput.attributesManager.setPersistentAttributes({street: street, planeamiento: planeamiento});
         await handlerInput.attributesManager.savePersistentAttributes();
         return handlerInput.responseBuilder.getResponse();

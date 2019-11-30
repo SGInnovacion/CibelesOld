@@ -37,6 +37,7 @@ router.post('/', (request, response) => {
 
         if (street.length > 0) {
             console.log('A new street was received');
+            // Aquí iría el código para guardar la nueva calle en la bbdd para los analytics.
         } else {
             try {
                 street = agent.getContext('session-variables').parameters.street;

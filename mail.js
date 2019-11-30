@@ -219,8 +219,8 @@ body{
 }
 .section-info{
      display: flex;
-     flex-direction: row;
-     padding: 0.3em;
+     flex-direction: column;
+     /*padding: 0.3em;*/
      margin-bottom: 15px;
 }
 @media (max-width: 500px) {
