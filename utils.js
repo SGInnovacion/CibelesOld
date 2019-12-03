@@ -71,33 +71,56 @@ const recordManyIntents = async (intentHistoryCount) => {
 const recordPetition = async (petition) => {
     console.log('Recording petition')
     console.log(petition);
-    try{
-         let params =  {
-            RequestItems: {
-                ['CibelesPetitions']: [{
-                    PutRequest: {
-                        Item: {
-                            id: {"N": petition.time},
+    // try{
+    //      let params =  {
+    //         RequestItems: {
+    //             ['CibelesPetitions']: [{
+    //                 PutRequest: {
+    //                     Item: {
+    //                         id: {"N": petition.time},
+    //                         intent: {"S": petition.intent},
+    //                         address: {"S": petition.address},
+    //                         user: {"S": petition.user}
+    //                     }
+    //                 }
+    //             }]
+    //         }
+    //     };
+    //
+    //     const data = await dynamoDB.batchWriteItem(params).promise();
+    //     console.log(data);
+    //     console.log("Updated counter");
+    //     return {
+    //         statusCode: 200,
+    //         body: JSON.stringify('Counter updated'),
+    //     };
+    // } catch (err) {
+    //     console.log(err, err.stack);
+    //     return { statusCode: 400 }
+    // }
+
+    let query =  {
+        RequestItems: {
+            ['CibelesPetitions']: [{
+                PutRequest: {
+                    Item: {
+                         id: {"N": petition.time},
                             intent: {"S": petition.intent},
                             address: {"S": petition.address},
                             user: {"S": petition.user}
-                        }
                     }
-                }]
-            }
-        };
+                }
+            }]
+        }
+    };
+    console.log(query);
 
-        const data = await dynamoDB.batchWriteItem(params).promise();
-        console.log(data);
-        console.log("Updated counter");
-        return {
-            statusCode: 200,
-            body: JSON.stringify('Counter updated'),
-        };
-    } catch (err) {
-        console.log(err, err.stack);
-        return { statusCode: 400 }
-    }
+    return new Promise(resolve => {
+        dynamoDB.batchWriteItem(query, function (err, data){
+            return err ? resolve( console.error("Unable to add item. Error JSON:", JSON.stringify(err, null, 2)))
+                : resolve('Success');
+        })
+    });
 };
 
 const recordManyPetitions = async (petitions) => {
