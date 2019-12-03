@@ -7,12 +7,12 @@ module.exports = async (street) => {
   const usos = address.planeamiento.parcela.usos
   console.log(usos)
   if (usos && usos.length !== 0) {
-    speechText += `El uso asociado a ${address.parsedStreet} es ${usos[0].usoDenominacion.toLowerCase()}`
+    speechText += `El uso asociado a ${address.parsedStreet} es ${usos[0].usoDenominacion.toLowerCase()}. `
   };
 
   let area = address.planeamiento.parcela.usos[0].usoEdificabilidad
   speechText += (area === '---') ? ''
-    : `Se puede construir ${area.replace('.', ',')} metros cuadrados del uso cualificado residencial vivienda colectiva.`
+    : `Se puede construir ${area.replace('.', ',')} metros cuadrados del uso cualificado residencial vivienda colectiva. `
 
   zonaUrbanistica = response.parcela.zonaUrbanistica
   ambitoEtiqueta = response.parcela.ambitoEtiqueta
@@ -28,10 +28,10 @@ module.exports = async (street) => {
   console.log(area)
 
   if (zonaUrbanistica != '---') {
-    speechText += `Pertenece a la zona urbanística ${zonaUrbanistica}.`
+    speechText += `Pertenece a la zona urbanística ${zonaUrbanistica}. `
   }
-  speechText += ` El ámbito es ${ambitoEtiqueta}`
-  speechText += ` y su denominación es ${ambitoDenominacion}.`
+  speechText += `El ámbito es ${ambitoEtiqueta} `
+  speechText += `y su denominación es ${ambitoDenominacion}. `
 
   const current = response.parcela.exptePlaneamientoVigente && response.parcela.exptePlaneamientoVigente.length > 0 ? response.parcela.exptePlaneamientoVigente : false
 
@@ -43,8 +43,8 @@ module.exports = async (street) => {
   console.log('[INFO] Last record:')
   console.log(lastRecord)
 
-  speechText += current ? `El expediente vigente es el ${current[0].numero} con denominación ${current[0].denominacion}`
-    : lastRecord ? `El último expediente del histórico es el ${lastRecord.numero} con denominación ${lastRecord.denominacion}`
+  speechText += current ? `El expediente vigente es el ${current[0].numero} con denominación ${current[0].denominacion}. `
+    : lastRecord ? `El último expediente del histórico es el ${lastRecord.numero} con denominación ${lastRecord.denominacion}. `
       : ''
 
   return speechText
