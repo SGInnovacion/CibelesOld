@@ -69,13 +69,15 @@ const recordManyIntents = async (intentHistoryCount) => {
 };
 
 const recordPetition = async (petition) => {
+    console.log('Recording petition')
+    console.log(petition);
     try{
          let params =  {
             RequestItems: {
                 ['CibelesPetitions']: [{
                     PutRequest: {
                         Item: {
-                            id: {"N": Date.now().toString()},
+                            id: {"N": petition.time},
                             intent: {"S": petition.intent},
                             address: {"S": petition.address},
                             user: {"S": petition.user}
