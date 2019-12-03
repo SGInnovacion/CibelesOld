@@ -46,7 +46,7 @@ const addPetition = (sessionAttrs, handlerInput, intent) => {
 async function parseAlexa(handlerInput, intentHandler, newConsultName = []){
     const { Street, Number } = handlerInput.requestEnvelope.request.intent.slots;
     let sessionAttrs = handlerInput.attributesManager.getSessionAttributes();
-    console.log('sessionAttrs', sessionAttrs)
+    console.log('sessionAttrs', sessionAttrs);
     let address = 'Alcalá 23';
     let planeamiento = '';
 
@@ -61,7 +61,7 @@ async function parseAlexa(handlerInput, intentHandler, newConsultName = []){
             planeamiento: planeamiento.planeamiento,
             history: sessionAttrs.hasOwnProperty('history') ? [...sessionAttrs.history, planeamiento.parsedStreet] : [planeamiento.parsedStreet],
             intentsHistoryCounter: addIntentsCount(sessionAttrs, newConsultName),
-            petitionsHistory: addPetition(sessionAttrs, handlerInput, newConsultName),
+            petitionsHistory: addPetition({...sessionAttrs, street: planeamiento.parsedStreet}, handlerInput, newConsultName),
             consulted: newConsultName !== [] ? newConsultName : [],
         });
     } else {
@@ -247,15 +247,26 @@ const HelpIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'AMAZON.HelpIntent'),
     handle: (handlerInput) => alexaSpeak(handlerInput,'Me puedes pregutar ¿qué puedes hacer?')
 };
+const ThanksIntentHandler = {
+    canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Thanks'),
+    handle: (handlerInput) => {
+        let speechOutput = ["No hay de qué!", "Es un placer ayudarte", "Para eso estamos", "No hay nada como la amabilidad madrileña!", "Un placer", "Encantada de ayudar"].random();
+        return handlerInput.responseBuilder.speak(speechOutput).getResponse();
+    }
+};
 const CancelAndStopIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'AMAZON.CancelIntent') || alexaCanHandle(handlerInput, 'AMAZON.StopIntent'),
     async handle(handlerInput) {
         let history = handlerInput.attributesManager.getSessionAttributes().history || {};
         let intentHistoryCount = handlerInput.attributesManager.getSessionAttributes().intentsHistoryCounter || {};
         let petitionsHistory = handlerInput.attributesManager.getSessionAttributes().petitionsHistory || {};
+        let street = handlerInput.attributesManager.getSessionAttributes().street;
+        let planeamiento = handlerInput.attributesManager.getSessionAttributes().planeamiento;
         await recordManyStreets(history);
         await recordManyIntents(intentHistoryCount);
         await recordManyPetitions(petitionsHistory);
+        handlerInput.attributesManager.setPersistentAttributes({street: street, planeamiento: planeamiento});
+        await handlerInput.attributesManager.savePersistentAttributes();
         let speechOutput = ["Hasta pronto!", "Hasta luego!", "Hasta la vista!", "Nos vemos por Madrid!", "Que tengas un buen día", "Nos vemos", "Nos vemos, espero haber sido de ayuda"].random()
         return handlerInput.responseBuilder.speak(speechOutput).getResponse();
     }
@@ -290,7 +301,7 @@ const IntentReflectorHandler = {
     },
     handle(handlerInput) {
         const intentName = Alexa.getIntentName(handlerInput.requestEnvelope);
-        const speakOutput = `Has activado ${intentName}. Comunicaselo a mis creadores.`;
+        const speakOutput = `Estoy encantada de ayudar. Puedes hacerme una consulta sobre urbanismo`;
 
         return alexaSpeak(handlerInput, speakOutput)
     }
@@ -312,7 +323,7 @@ const ErrorHandler = {
 
 Array.prototype.random = function(){
   return this[Math.floor(Math.random()*this.length)];
-}
+};
 
 // The SkillBuilder acts as the entry point for your skill, routing all request and response
 // payloads to the handlers above. Make sure any new handlers or interceptors you've
@@ -336,6 +347,7 @@ exports.handler = Alexa.SkillBuilders.custom()
         RecordIntentHandler,
         MailIntentHandler,
         NoIntentHandler,
+        ThanksIntentHandler,
         IntentReflectorHandler, // make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
     )
     .addErrorHandlers(
