@@ -104,7 +104,7 @@ const recordPetition = async (petition) => {
             ['CibelesPetitions']: [{
                 PutRequest: {
                     Item: {
-                         id: {"N": petition.time},
+                         time: {"N": petition.time},
                             intent: {"S": petition.intent},
                             address: {"S": petition.address},
                             user: {"S": petition.user}
