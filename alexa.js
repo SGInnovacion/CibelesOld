@@ -251,7 +251,7 @@ const ThanksIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Thanks'),
     handle: (handlerInput) => {
         let speechOutput = ["No hay de qué!", "Es un placer ayudarte", "Para eso estamos", "No hay nada como la amabilidad madrileña!", "Un placer", "Encantada de ayudar"].random();
-        return handlerInput.responseBuilder.speak(speechOutput).getResponse();
+        return alexaSpeak(handlerInput, speechOutput)
     }
 };
 const CancelAndStopIntentHandler = {
