@@ -212,14 +212,15 @@ const getHttp = (url, query, username = 'DUINNOVA', passw = 'Texeira1656') => {
             host: encodeURI(url),
             path: encodeURI(query),
             headers: {
-                'Authorization': 'Basic ' + Buffer.from(username + ':' + passw).toString('base64')
+                'Authorization': 'Basic ' + Buffer.from(username + ':' + passw).toString('base64'),
+                'Content-type': 'application/json; charset=UTF-8'
             }
         };
 
         const request = http.request(options, response => {
 
             console.log(response);
-            response.setEncoding('binary');
+            response.setEncoding('utf8');
             let returnData = '';
 
             if (response.statusCode < 200 || response.statusCode >= 300) {
