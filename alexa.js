@@ -5,7 +5,7 @@ const ddbTableName = 'CibelesConcept';
 const axios = require('axios');
 
 const { planeamientoNdp, bdcSearch, getPlaneamiento } = require('./APIs');
-const { recordManyStreets } = require('./utils');
+const { recordManyStreets, recordManyIntents, recordManyPetitions } = require('./utils');
 const fillMail = require('./mail').fillMail;
 
 const getProtection = require('./intentHandlers/protection');
@@ -21,6 +21,28 @@ const alexaCanHandle = (handlerInput, intentName) => Alexa.getRequestType(handle
 
 const alexaSpeak = (handlerInput, speech, reprompt = speech) => handlerInput.responseBuilder.speak(speech).reprompt(reprompt).getResponse();
 
+const addIntentsCount = (sessionAttrs, newConsultName) => {
+    const historyCounter = sessionAttrs.hasOwnProperty('intentsHistoryCounter') ? sessionAttrs.intentsHistoryCounter : [];
+    let newIntentHistoryCounter = Object.assign({}, historyCounter);
+    console.log('newIntentHistoryCOunter:')
+    console.log(newIntentHistoryCounter)
+    newConsultName.forEach(intent => {
+        newIntentHistoryCounter[intent] = newIntentHistoryCounter.hasOwnProperty(intent.name) ? newIntentHistoryCounter[intent.name] + 1 : 1;
+    });
+    console.log(newIntentHistoryCounter)
+    return newIntentHistoryCounter;
+};
+
+const addPetition = (sessionAttrs, handlerInput, intent) => {
+    const petitionsHistory = sessionAttrs.hasOwnProperty('petitionsHistory') ? sessionAttrs.petitionsHistory : [];
+    return [...petitionsHistory, {
+        time: Date.now().toString(),
+        user: handlerInput.requestEnvelope.context.System.user.userId,
+        address: sessionAttrs.street,
+        intent: intent.length > 1 ? 'general' : intent[0]
+    }];
+};
+
 async function parseAlexa(handlerInput, intentHandler, newConsultName = []){
     const { Street, Number } = handlerInput.requestEnvelope.request.intent.slots;
     let sessionAttrs = handlerInput.attributesManager.getSessionAttributes();
@@ -32,18 +54,23 @@ async function parseAlexa(handlerInput, intentHandler, newConsultName = []){
         console.log('New street requested');
         address = Number.value !== undefined ? `${Street.value} ${Number.value}` : Street.value + '1';
         planeamiento = await getPlaneamiento(address);
+
         setSessionParams(handlerInput, {
             ...sessionAttrs,
             street: planeamiento.parsedStreet,
             planeamiento: planeamiento.planeamiento,
             history: sessionAttrs.hasOwnProperty('history') ? [...sessionAttrs.history, planeamiento.parsedStreet] : [planeamiento.parsedStreet],
+            intentsHistoryCounter: addIntentsCount(sessionAttrs, newConsultName),
+            petitionsHistory: addPetition(sessionAttrs, handlerInput, newConsultName),
             consulted: newConsultName !== [] ? newConsultName : [],
         });
     } else {
         console.log('newConsultName: ', newConsultName);
         setSessionParams(handlerInput, {
             ...sessionAttrs,
-            consulted: sessionAttrs.consulted != undefined ? [...new Set(sessionAttrs.consulted.concat(newConsultName))] : newConsultName
+            consulted: sessionAttrs.consulted != undefined ? [...new Set(sessionAttrs.consulted.concat(newConsultName))] : newConsultName,
+            intentsHistoryCounter: addIntentsCount(sessionAttrs, newConsultName),
+            petitionsHistory: addPetition(sessionAttrs, handlerInput, newConsultName)
         });
         planeamiento = {
             planeamiento: sessionAttrs.planeamiento,
@@ -223,10 +250,12 @@ const HelpIntentHandler = {
 const CancelAndStopIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'AMAZON.CancelIntent') || alexaCanHandle(handlerInput, 'AMAZON.StopIntent'),
     async handle(handlerInput) {
-        let history = handlerInput.attributesManager.getSessionAttributes().history;
-        console.log('Recordingn streets: ' + history);
+        let history = handlerInput.attributesManager.getSessionAttributes().history || {};
+        let intentHistoryCount = handlerInput.attributesManager.getSessionAttributes().intentsHistoryCounter || {};
+        let petitionsHistory = handlerInput.attributesManager.getSessionAttributes().petitionsHistory || {};
         await recordManyStreets(history);
-        console.log('Streets recorded');
+        await recordManyIntents(intentHistoryCount);
+        await recordManyPetitions(petitionsHistory);
         return handlerInput.responseBuilder.speak('Adiós').getResponse();
     }
 };
@@ -238,11 +267,12 @@ const SessionEndedRequestHandler = {
         // Any cleanup logic goes here.
         let street = handlerInput.attributesManager.getSessionAttributes().street;
         let planeamiento = handlerInput.attributesManager.getSessionAttributes().planeamiento;
-        let consulted = handlerInput.attributesManager.getSessionAttributes().consulted;
         let history = handlerInput.attributesManager.getSessionAttributes().history;
-        console.log('Recordingn streets: ' + history);
+        let intentHistoryCount = handlerInput.attributesManager.getSessionAttributes().intentsHistoryCounter || {};
+        let petitionsHistory = handlerInput.attributesManager.getSessionAttributes().petitionsHistory || {};
         await recordManyStreets(history);
-        console.log('Streets recorded');
+        await recordManyIntents(intentHistoryCount);
+        await recordManyPetitions(petitionsHistory);
         handlerInput.attributesManager.setPersistentAttributes({street: street, planeamiento: planeamiento});
         await handlerInput.attributesManager.savePersistentAttributes();
         return handlerInput.responseBuilder.getResponse();

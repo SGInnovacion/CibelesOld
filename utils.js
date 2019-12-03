@@ -34,6 +34,74 @@ const recordManyStreets = async (streets) => {
     return streets.map(async street => await recordStreet(street));
 };
 
+const recordIntent = async (intentName, count) => {
+    console.log('intentName: ' + intentName);
+    console.log('count: ' + count);
+  try {
+      let params = {
+          TableName: 'CibelesIntents',
+          Key: {
+              'intent': { S: intentName }},
+          UpdateExpression: 'SET #val = if_not_exists(#val, :zero) + :inc, #last = :time',
+          ExpressionAttributeNames: { '#val': 'Value', '#last': 'last_request' },
+          ExpressionAttributeValues: {
+              ':inc': { N: count.toString() }, ':zero': { N: '0' }, ':time' : { N: Date.now().toString()}},
+          ReturnValues: 'ALL_NEW'
+      };
+        console.log("Invoked counter-test");
+        const data = await dynamoDB.updateItem(params).promise();
+        console.log(data);
+        console.log("Updated counter");
+      return {
+            statusCode: 200,
+            body: JSON.stringify('Counter updated'),
+        };
+    } catch (err) {
+      console.log(err, err.stack);
+      return { statusCode: 400 }
+    }
+};
+
+const recordManyIntents = async (intentHistoryCount) => {
+    console.log('Intent history count');
+    console.log(intentHistoryCount);
+    return Object.keys(intentHistoryCount).map(async int => await recordIntent(int, intentHistoryCount[int]));
+};
+
+const recordPetition = async (petition) => {
+    try{
+         let params =  {
+            RequestItems: {
+                ['CibelesPetitions']: [{
+                    PutRequest: {
+                        Item: {
+                            id: {"N": Date.now().toString()},
+                            intent: {"S": petition.intent},
+                            address: {"S": petition.address},
+                            user: {"S": petition.user}
+                        }
+                    }
+                }]
+            }
+        };
+
+        const data = await dynamoDB.batchWriteItem(params).promise();
+        console.log(data);
+        console.log("Updated counter");
+        return {
+            statusCode: 200,
+            body: JSON.stringify('Counter updated'),
+        };
+    } catch (err) {
+        console.log(err, err.stack);
+        return { statusCode: 400 }
+    }
+};
+
+const recordManyPetitions = async (petitions) => {
+    return petitions.map(async petition => await recordPetition(petition));
+};
+
 const dynamoRecord = (queries, correct, attendedBy, tableName) => {
     let query =  {
         RequestItems: {
@@ -193,5 +261,7 @@ module.exports = {
     toTitleCase,
     getUserParams,
     sendMail,
-    recordManyStreets
+    recordManyStreets,
+    recordManyIntents,
+    recordManyPetitions
 };

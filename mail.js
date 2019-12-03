@@ -267,7 +267,7 @@ body{
 .proteccion{
      background-color: #f5f5f5;
      padding: 1.4em;
-     color: white;
+     color: black;
      margin: 0.3em;
 }
 .patr-table{
