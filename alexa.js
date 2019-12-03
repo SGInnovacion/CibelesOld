@@ -256,7 +256,8 @@ const CancelAndStopIntentHandler = {
         await recordManyStreets(history);
         await recordManyIntents(intentHistoryCount);
         await recordManyPetitions(petitionsHistory);
-        return handlerInput.responseBuilder.speak('Adiós').getResponse();
+        let speechOutput = ["Hasta pronto!", "Hasta luego!", "Hasta la vista!", "Nos vemos por Madrid!", "Que tengas un buen día", "Nos vemos", "Nos vemos, espero haber sido de ayuda"].random()
+        return handlerInput.responseBuilder.speak(speechOutput).getResponse();
     }
 };
 const SessionEndedRequestHandler = {
