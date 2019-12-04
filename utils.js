@@ -1,6 +1,7 @@
 const AWS = require('aws-sdk');
 let dynamoDB = new AWS.DynamoDB();
 const http = require('http');
+const axios = require('axios');
 
 
 const recordStreet = async (street) => {
@@ -15,10 +16,7 @@ const recordStreet = async (street) => {
               ':inc': { N: '1' }, ':zero': { N: '0' }},
           ReturnValues: 'ALL_NEW'
       };
-        console.log("Invoked counter-test");
         const data = await dynamoDB.updateItem(params).promise();
-        console.log(data);
-        console.log("Updated counter");
         const response = {
             statusCode: 200,
             body: JSON.stringify('Counter updated'),
@@ -30,13 +28,9 @@ const recordStreet = async (street) => {
     }
 };
 
-const recordManyStreets = async (streets) => {
-    return streets.map(async street => await recordStreet(street));
-};
+const recordManyStreets = async (streets) => streets.map(async street => await recordStreet(street));
 
 const recordIntent = async (intentName, count) => {
-    console.log('intentName: ' + intentName);
-    console.log('count: ' + count);
   try {
       let params = {
           TableName: 'CibelesIntents',
@@ -48,10 +42,7 @@ const recordIntent = async (intentName, count) => {
               ':inc': { N: count.toString() }, ':zero': { N: '0' }, ':time' : { N: Date.now().toString()}},
           ReturnValues: 'ALL_NEW'
       };
-        console.log("Invoked counter-test");
-        const data = await dynamoDB.updateItem(params).promise();
-        console.log(data);
-        console.log("Updated counter");
+      const data = await dynamoDB.updateItem(params).promise();
       return {
             statusCode: 200,
             body: JSON.stringify('Counter updated'),
@@ -62,43 +53,9 @@ const recordIntent = async (intentName, count) => {
     }
 };
 
-const recordManyIntents = async (intentHistoryCount) => {
-    console.log('Intent history count');
-    console.log(intentHistoryCount);
-    return Object.keys(intentHistoryCount).map(async int => await recordIntent(int, intentHistoryCount[int]));
-};
+const recordManyIntents = async (intents) => Object.keys(intents).map(async k => await recordIntent(k, intents[k]));
 
 const recordPetition = async (petition) => {
-    console.log('Recording petition')
-    console.log(petition);
-    // try{
-    //      let params =  {
-    //         RequestItems: {
-    //             ['CibelesPetitions']: [{
-    //                 PutRequest: {
-    //                     Item: {
-    //                         id: {"N": petition.time},
-    //                         intent: {"S": petition.intent},
-    //                         address: {"S": petition.address},
-    //                         user: {"S": petition.user}
-    //                     }
-    //                 }
-    //             }]
-    //         }
-    //     };
-    //
-    //     const data = await dynamoDB.batchWriteItem(params).promise();
-    //     console.log(data);
-    //     console.log("Updated counter");
-    //     return {
-    //         statusCode: 200,
-    //         body: JSON.stringify('Counter updated'),
-    //     };
-    // } catch (err) {
-    //     console.log(err, err.stack);
-    //     return { statusCode: 400 }
-    // }
-
     let query =  {
         RequestItems: {
             ['CibelesPetitions']: [{
@@ -113,8 +70,6 @@ const recordPetition = async (petition) => {
             }]
         }
     };
-    console.log(query);
-
     return new Promise(resolve => {
         dynamoDB.batchWriteItem(query, function (err, data){
             return err ? resolve( console.error("Unable to add item. Error JSON:", JSON.stringify(err, null, 2)))
@@ -123,9 +78,7 @@ const recordPetition = async (petition) => {
     });
 };
 
-const recordManyPetitions = async (petitions) => {
-    return petitions.map(async petition => await recordPetition(petition));
-};
+const recordManyPetitions = async (petitions) => petitions.map(async petition => await recordPetition(petition));
 
 const dynamoRecord = (queries, correct, attendedBy, tableName) => {
     let query =  {
@@ -146,7 +99,6 @@ const dynamoRecord = (queries, correct, attendedBy, tableName) => {
             }]
         }
     };
-    console.log(query);
 
     return new Promise(resolve => {
         dynamoDB.batchWriteItem(query, function (err, data){
@@ -173,37 +125,6 @@ const recordQuery = (agent, intent) => {
         }
     }
     agent.setContext(context);
-};
-
-const getUserParams = (token, param) => {
-    return new Promise((resolve, reject) => {
-        const options = {
-            host: encodeURI('api.eu.amazonalexa.com'),
-            path: encodeURI('/v2/accounts/~current/settings/Profile.'+ param),
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        };
-
-        const request = http.request(options, response => {
-
-            console.log(response);
-            response.setEncoding('binary');
-            let returnData = '';
-
-            if (response.statusCode < 200 || response.statusCode >= 300) {
-                return reject(new Error(`${response.statusCode}: ${response.req.getHeader('host')} ${response.req.path}`));
-            }
-            response.on('data', chunk => {
-                returnData += chunk;
-            });
-            response.on('end', () => resolve(returnData));
-            response.on('error', error => {
-                console.log(error);
-                reject(error)});
-        });
-        request.end();
-    });
 };
 
 const getHttp = (url, query, username = 'DUINNOVA', passw = 'Texeira1656') => {
@@ -246,7 +167,6 @@ const toTitleCase = (phrase) => {
         .join(' ');
 };
 
-
 const sendMail = async (mail, info, address) => {
     const ses = new AWS.SES({region: 'us-east-1'});
     var params = {
@@ -266,18 +186,37 @@ const sendMail = async (mail, info, address) => {
         },
         Source: "ayto.saturnolabs@gmail.com"
     };
-    console.log(params);
-    return ses.sendEmail(params, function (err, data) {
-        console.log('sending mail');
-        console.log(data);
-        console.log(err);
-        if (err) {
-            return false;
-        } else {
-            return true;
-        }
+    return ses.sendEmail(params, function (err) {
+        return !err;
     });
 
+};
+
+const axiosRequest = async (url, token) => {
+    let result = "";
+    try {
+        result = await axios.get(url, {
+            headers: {
+                Accept: "application/json",
+                Authorization: "Bearer " + token
+            }
+        });
+    } catch (error) {
+        console.log(error);
+    }
+    return result && result.data;
+};
+
+const getUserName = async (handlerInput) => {
+    const { apiAccessToken, apiEndpoint } = handlerInput.requestEnvelope.context.System;
+    const url = apiEndpoint.concat(`/v2/accounts/~current/settings/Profile.givenName`);
+    return axiosRequest(url, apiAccessToken);
+};
+
+const getUserMail = async (handlerInput) => {
+    const { apiAccessToken, apiEndpoint } = handlerInput.requestEnvelope.context.System;
+    const url = apiEndpoint.concat(`/v2/accounts/~current/settings/Profile.email`);
+    return axiosRequest(url, apiAccessToken);
 };
 
 module.exports = {
@@ -285,9 +224,10 @@ module.exports = {
     recordQuery,
     getHttp,
     toTitleCase,
-    getUserParams,
     sendMail,
     recordManyStreets,
     recordManyIntents,
-    recordManyPetitions
+    recordManyPetitions,
+    getUserName,
+    getUserMail
 };

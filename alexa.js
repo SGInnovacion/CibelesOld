@@ -2,10 +2,9 @@ const Alexa = require('ask-sdk');
 
 const ddbAdapter = require('ask-sdk-dynamodb-persistence-adapter'); // included in ask-sdk
 const ddbTableName = 'CibelesConcept';
-const axios = require('axios');
 
 const { planeamientoNdp, bdcSearch, getPlaneamiento } = require('./APIs');
-const { recordManyStreets, recordManyIntents, recordManyPetitions } = require('./utils');
+const { recordManyStreets, recordManyIntents, recordManyPetitions, getUserName, getUserMail } = require('./utils');
 const fillMail = require('./mail').fillMail;
 
 const getProtection = require('./intentHandlers/protection');
@@ -24,12 +23,9 @@ const alexaSpeak = (handlerInput, speech, reprompt = speech) => handlerInput.res
 const addIntentsCount = (sessionAttrs, newConsultName) => {
     const historyCounter = sessionAttrs.hasOwnProperty('intentsHistoryCounter') ? sessionAttrs.intentsHistoryCounter : [];
     let newIntentHistoryCounter = Object.assign({}, historyCounter);
-    console.log('newIntentHistoryCOunter:')
-    console.log(newIntentHistoryCounter)
     newConsultName.forEach(intent => {
         newIntentHistoryCounter[intent] = newIntentHistoryCounter.hasOwnProperty(intent.name) ? newIntentHistoryCounter[intent.name] + 1 : 1;
     });
-    console.log(newIntentHistoryCounter)
     return newIntentHistoryCounter;
 };
 
@@ -100,7 +96,7 @@ function setSessionParams(handlerInput, params){
 
 
 const getSuggestions = (handlerInput, out='') => {
-    let sessionAttrs = handlerInput.attributesManager.getSessionAttributes()
+    let sessionAttrs = handlerInput.attributesManager.getSessionAttributes();
     let consulted = sessionAttrs.consulted;
     let available = ['mail', 'edificabilidad', 'protección', 'expediente', 'normativa', 'usos'];
     console.log('getSuggestions//consulted: ', consulted);
@@ -109,12 +105,14 @@ const getSuggestions = (handlerInput, out='') => {
         if (toConsult.includes("mail") && (!out.includes("No hay información") && !out.includes("no está protegido."))){
             return '¿Quieres que te envíe un correo con la información que he encontrado?'
         } else {
-            toConsult = toConsult.filter( el => el != 'mail').slice(0, 2)
-            return 'Puedes preguntar por ' + toConsult.join(' o ') + ' en la misma ubicación'
+            toConsult = toConsult.filter( el => el != 'mail').slice(0, 2);
+            const asserter = ["Puedes preguntar por ", "También te puedo informar sobre ", "Puedes consultar sobre ", "Puedo informarte sobre "].random();
+            const there = [' en la misma ubicación', ' en esa dirección', ' en el mismo lugar', ' en esa ubicación'].random();
+            return asserter + toConsult.join(' o ') + there;
         }
     }
     return ''
-}
+};
 
 
 const LaunchRequestHandler = {
@@ -124,48 +122,15 @@ const LaunchRequestHandler = {
     async handle(handlerInput) {
         const { attributesManager } = handlerInput;
         const attributes = await attributesManager.getPersistentAttributes() || {};
-        const { apiAccessToken, apiEndpoint, user } = handlerInput.requestEnvelope.context.System;
-        const getEmailUrl = apiEndpoint.concat(
-            `/v2/accounts/~current/settings/Profile.email`
-        );
-        const getName = apiEndpoint.concat(
-            `/v2/accounts/~current/settings/Profile.givenName`
-        );
 
-        let mailResult = "";
-        try {
-            mailResult = await axios.get(getEmailUrl, {
-                headers: {
-                    Accept: "application/json",
-                    Authorization: "Bearer " + apiAccessToken
-                }
-            });
-        } catch (error) {
-            console.log(error);
-        }
-
-        let nameResult = "";
-        try {
-            nameResult = await axios.get(getName, {
-                headers: {
-                    Accept: "application/json",
-                    Authorization: "Bearer " + apiAccessToken
-                }
-            });
-        } catch (error) {
-            console.log(error);
-        }
-
-        const email = mailResult && mailResult.data;
-        const name = nameResult && nameResult.data;
-
+        const email = await getUserMail(handlerInput);
+        const name = await getUserName(handlerInput);
         console.log( name + ', your email is ' + email);
 
         let speakOutput = `Hola, soy Cibeles. Estoy preparada para responderte a preguntas urbanísticas sobre usos, edificabilidades, normativa, protección o expedientes. ¿Sobre qué quieres información?`;
 
         if(Object.keys(attributes).length > 0){
             attributesManager.setSessionAttributes({...attributes, email: email});
-            console.log('Attributes');
             speakOutput = `Hola ${name}, puedo seguir informándote sobre ${attributes.street} o puedes consultarme sobre una dirección nueva`;
         }
 
@@ -267,7 +232,7 @@ const CancelAndStopIntentHandler = {
         await recordManyPetitions(petitionsHistory);
         handlerInput.attributesManager.setPersistentAttributes({street: street, planeamiento: planeamiento});
         await handlerInput.attributesManager.savePersistentAttributes();
-        let speechOutput = ["Hasta pronto!", "Hasta luego!", "Hasta la vista!", "Nos vemos por Madrid!", "Que tengas un buen día", "Nos vemos", "Nos vemos, espero haber sido de ayuda"].random()
+        let speechOutput = ["Hasta pronto!", "Hasta luego!", "Hasta la vista!", "Nos vemos por Madrid!", "Que tengas un buen día", "Nos vemos", "Nos vemos, espero haber sido de ayuda"].random();
         return handlerInput.responseBuilder.speak(speechOutput).getResponse();
     }
 };
@@ -322,7 +287,7 @@ const ErrorHandler = {
 };
 
 Array.prototype.random = function(){
-  return this[Math.floor(Math.random()*this.length)];
+    return this[Math.floor(Math.random()*this.length)];
 };
 
 // The SkillBuilder acts as the entry point for your skill, routing all request and response
@@ -335,6 +300,7 @@ exports.handler = Alexa.SkillBuilders.custom()
         HelpIntentHandler,
         CancelAndStopIntentHandler,
         SessionEndedRequestHandler,
+        GeneralInfoIntentHandler,
         EdificabilityIntentHandler,
         ProtectionGeneralIntentHandler,
         ProtectionCatalogueIntentHandler,

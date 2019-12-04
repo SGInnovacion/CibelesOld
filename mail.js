@@ -221,6 +221,7 @@ body{
      display: flex;
      flex-direction: column;
      /*padding: 0.3em;*/
+     padding: 1.4em;
      margin-bottom: 15px;
 }
 @media (max-width: 500px) {
