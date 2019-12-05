@@ -219,6 +219,15 @@ const ThanksIntentHandler = {
         return handlerInput.responseBuilder.speak(speechOutput).getResponse();
     }
 };
+
+const PersonalIntentHandler = {
+    canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Personal'),
+    handle: (handlerInput) => {
+        let speechOutput = ["Todavía no estoy preparada para informarte de tus trámites con el Ayuntamiento. "].random();
+        return alexaSpeak(handlerInput,speechOutput + getSuggestions(handlerInput))
+    }
+};
+
 const CancelAndStopIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'AMAZON.CancelIntent') || alexaCanHandle(handlerInput, 'AMAZON.StopIntent'),
     async handle(handlerInput) {
