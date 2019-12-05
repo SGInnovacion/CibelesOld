@@ -6,7 +6,7 @@ module.exports = async (street) => {
   const usos = address.planeamiento.parcela.usos
   console.log(usos)
   if (usos && usos.length !== 0) {
-    speechText += `El uso cualificado de ${address.parsedStreet} es ${usos[0].usoDenominacion.toLowerCase()}`
+    speechText += `El uso cualificado de ${address.parsedStreet} es ${usos[0].usoDenominacion.toLowerCase().trim()}. `
   };
 
   return speechText
