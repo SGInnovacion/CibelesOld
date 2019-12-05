@@ -134,6 +134,7 @@ const getHttp = (url, query, username = 'DUINNOVA', passw = 'Texeira1656') => {
             path: encodeURI(query),
             headers: {
                 'Authorization': 'Basic ' + Buffer.from(username + ':' + passw).toString('base64'),
+                'Content-type': 'application/json; charset=utf-8'
             }
         };
 
