@@ -94,6 +94,7 @@ const planeamientoCoordinates = (x = '442879' , y = '4475446') => {
     const path = `/RPGCS_RSPLAN/rest/getInfo.iam?x=${x}&y=${y}`;
     return getHttp(PLAN_URL, path).then(res => {
         console.log(res);
+        res = res.replace('ã', 'ñ') //encoding issue with UTF8
         return JSON.parse(res);
     })
 };
@@ -117,8 +118,6 @@ const planeamientoNdp = async (ndp = '11138219') => {
 const bdcSearch = async (street) => {
     const path = `/BDCTR_RSGENERAL/restBDC/validarEspaguetti?cadena=${street}`;
     return getHttp(BDC_URL, path).then(res => {
-        console.log('inside bdcSearch');
-        console.log(res);
         return JSON.parse(res)[0];
     })
 };
@@ -126,7 +125,7 @@ const bdcSearch = async (street) => {
 async function getPlaneamiento(street) {
     let result = await bdcSearch(street);
     let NDP = result.codigoNdps;
-    let claseVial = result.claseVial ;
+    let claseVial = result.claseVial;
     let nombre = result.viales;
     let numero = result.numeros || '';
     let calificador = result.calificador;
@@ -134,7 +133,7 @@ async function getPlaneamiento(street) {
     let planeamiento = await planeamientoNdp(NDP);
     console.log(planeamiento)
     console.log(parsedStreet)
-    return { planeamiento: planeamiento, parsedStreet: parsedStreet};
+    return { planeamiento: planeamiento, parsedStreet: parsedStreet.trim()};
 };
 
 module.exports = {

@@ -62,9 +62,9 @@ router.post('/', (request, response) => {
 
         console.log('Consulted: ', consulted)
 
-        let out = await intentHandler(street);
+        let out = await intentHandler(street, true);
         console.log(out);
-        agent.add(out.replace('ã', 'ñ') + getSuggestions(consulted));
+        agent.add(out + getSuggestions(consulted));
     }
 
     // Run the proper function handler based on the matched Dialogflow intent name
