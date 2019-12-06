@@ -10,7 +10,8 @@ var express = require('express');
 const app = express();
 const router = express.Router();
 
-const { recordQuery } = require('./utils');
+const { recordQuery, recordStreet, recordPetition, recordIntent, toTitleCase } = require('./utils');
+const { getPlaneamiento } = require('./APIs');
 const getProtection = require('./intentHandlers/protection');
 const getRecord = require('./intentHandlers/record');
 const getUse = require('./intentHandlers/use');
@@ -25,6 +26,7 @@ router.use(bodyParser.urlencoded({ extended: true }));
 router.use(awsServerlessExpressMiddleware.eventContext());
 
 router.post('/', (request, response) => {
+    console.log('request');
     console.log(request);
     const agent = new WebhookClient({ request, response });
 
@@ -48,22 +50,35 @@ router.post('/', (request, response) => {
             } catch (e) {
                 console.log('There is no street stored, we will ask the user for one');
                 agent.add('¿Puedes decirme la calle?');
-                return
+                return;
             }
         }
+        let planeamiento = await getPlaneamiento(street);
+        try {
+            await recordIntent(newConsultName.length > 0 ? 'general' : newConsultName[0], 1);
+            await recordStreet(toTitleCase(street));
+            await recordPetition({
+                user: agent.session,
+                source: agent.requestSource,
+                intent: newConsultName.length > 0 ? 'general' : newConsultName[0],
+                address: toTitleCase(street),
+                time: Date.now().toString() });
+        } catch (e) {
+            console.log('Analytics records crashed:');
+            console.log(e);
+        }
+
 
         agent.setContext({ name: 'session-variables',
             lifespan: 99999,
-            parameters: { 
+            parameters: {
                 street: street,
                 consulted: consulted
             }
         });
 
-        console.log('Consulted: ', consulted)
-
-        let out = await intentHandler(street, true);
-        console.log(out);
+        let out = await intentHandler(planeamiento, true);
+        console.log('Output: ' + out);
         agent.add(out + getSuggestions(consulted));
     }
 

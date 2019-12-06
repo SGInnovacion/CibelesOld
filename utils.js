@@ -1,8 +1,7 @@
 const AWS = require('aws-sdk');
-let dynamoDB = new AWS.DynamoDB();
+let dynamoDB = new AWS.DynamoDB({ region: 'us-east-1'});
 const http = require('http');
 const axios = require('axios');
-
 
 const recordStreet = async (street) => {
   try {
@@ -64,7 +63,8 @@ const recordPetition = async (petition) => {
                          time: {"N": petition.time},
                             intent: {"S": petition.intent},
                             address: {"S": petition.address},
-                            user: {"S": petition.user}
+                            user: {"S": petition.user},
+                            source: {"S": petition.source}
                     }
                 }
             }]
@@ -229,6 +229,9 @@ module.exports = {
     recordManyStreets,
     recordManyIntents,
     recordManyPetitions,
+    recordStreet,
+    recordIntent,
+    recordPetition,
     getUserName,
     getUserMail
 };

@@ -35,7 +35,8 @@ const addPetition = (sessionAttrs, handlerInput, intent) => {
         time: Date.now().toString(),
         user: handlerInput.requestEnvelope.context.System.user.userId,
         address: sessionAttrs.street,
-        intent: intent.length > 1 ? 'general' : intent[0]
+        intent: intent.length > 1 ? 'general' : intent[0],
+        source: 'alexa',
     }];
 };
 
