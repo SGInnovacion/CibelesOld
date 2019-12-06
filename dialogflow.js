@@ -37,49 +37,54 @@ router.post('/', (request, response) => {
     async function parseDialog(agent, intentHandler, newConsultName=[]){
         let street = agent.parameters.address;
         let consulted = [];
-
+        let planeamiento = false;
+        console.log('street: ' + street);
         if (street.length > 0) {
             console.log('A new street was received');
             consulted = newConsultName;
-            // Aquí iría el código para guardar la nueva calle en la bbdd para los analytics.
+            planeamiento = await getPlaneamiento(street);
+
         } else {
             try {
                 street = agent.getContext('session-variables').parameters.street;
+                planeamiento = agent.getContext('session-variables').parameters.planeamiento;
                 console.log('We will be using the street stored in the session-variables');
                 consulted = [...new Set(agent.getContext('session-variables').parameters.consulted.concat(newConsultName))];
             } catch (e) {
                 console.log('There is no street stored, we will ask the user for one');
+                console.log(e);
                 agent.add('¿Puedes decirme la calle?');
                 return;
             }
         }
-        let planeamiento = await getPlaneamiento(street);
-        try {
-            await recordIntent(newConsultName.length > 0 ? 'general' : newConsultName[0], 1);
-            await recordStreet(toTitleCase(street));
-            await recordPetition({
-                user: agent.session,
-                source: agent.requestSource,
-                intent: newConsultName.length > 0 ? 'general' : newConsultName[0],
-                address: toTitleCase(street),
-                time: Date.now().toString() });
-        } catch (e) {
-            console.log('Analytics records crashed:');
-            console.log(e);
-        }
-
 
         agent.setContext({ name: 'session-variables',
             lifespan: 99999,
             parameters: {
                 street: street,
-                consulted: consulted
+                consulted: consulted,
+                planeamiento: planeamiento,
             }
         });
 
-        let out = await intentHandler(planeamiento, true);
+        let out = await intentHandler(planeamiento || street, true);
         console.log('Output: ' + out);
+
+
         agent.add(out + getSuggestions(consulted));
+        //         try {
+        //     await recordIntent(newConsultName.length > 1 ? 'general' : newConsultName[0], 1);
+        //     await recordStreet(planeamiento.parsedStreet);
+        //     await recordPetition({
+        //         user: agent.session,
+        //         source: agent.requestSource,
+        //         intent: newConsultName.length > 0 ? 'general' : newConsultName[0],
+        //         address: planeamiento.parsedStreet,
+        //         time: Date.now().toString() });
+        // } catch (e) {
+        //     console.log('Analytics records crashed:');
+        //     console.log(e);
+        // }
     }
 
     // Run the proper function handler based on the matched Dialogflow intent name
