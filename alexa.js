@@ -2,10 +2,9 @@ const Alexa = require('ask-sdk');
 
 const ddbAdapter = require('ask-sdk-dynamodb-persistence-adapter'); // included in ask-sdk
 const ddbTableName = 'CibelesConcept';
-const axios = require('axios');
 
 const { planeamientoNdp, bdcSearch, getPlaneamiento } = require('./APIs');
-const { recordManyStreets } = require('./utils');
+const { recordManyStreets, recordManyIntents, recordManyPetitions, getUserName, getUserMail } = require('./utils');
 const fillMail = require('./mail').fillMail;
 
 const getProtection = require('./intentHandlers/protection');
@@ -21,10 +20,30 @@ const alexaCanHandle = (handlerInput, intentName) => Alexa.getRequestType(handle
 
 const alexaSpeak = (handlerInput, speech, reprompt = speech) => handlerInput.responseBuilder.speak(speech).reprompt(reprompt).getResponse();
 
+const addIntentsCount = (sessionAttrs, newConsultName) => {
+    const historyCounter = sessionAttrs.hasOwnProperty('intentsHistoryCounter') ? sessionAttrs.intentsHistoryCounter : [];
+    let newIntentHistoryCounter = Object.assign({}, historyCounter);
+    newConsultName.forEach(intent => {
+        newIntentHistoryCounter[intent] = newIntentHistoryCounter.hasOwnProperty(intent.name) ? newIntentHistoryCounter[intent.name] + 1 : 1;
+    });
+    return newIntentHistoryCounter;
+};
+
+const addPetition = (sessionAttrs, handlerInput, intent) => {
+    const petitionsHistory = sessionAttrs.hasOwnProperty('petitionsHistory') ? sessionAttrs.petitionsHistory : [];
+    return [...petitionsHistory, {
+        time: Date.now().toString(),
+        user: handlerInput.requestEnvelope.context.System.user.userId,
+        address: sessionAttrs.street,
+        intent: intent.length > 1 ? 'general' : intent[0],
+        source: 'alexa',
+    }];
+};
+
 async function parseAlexa(handlerInput, intentHandler, newConsultName = []){
     const { Street, Number } = handlerInput.requestEnvelope.request.intent.slots;
     let sessionAttrs = handlerInput.attributesManager.getSessionAttributes();
-    console.log('sessionAttrs', sessionAttrs)
+    console.log('sessionAttrs', sessionAttrs);
     let address = 'Alcalá 23';
     let planeamiento = '';
 
@@ -32,18 +51,23 @@ async function parseAlexa(handlerInput, intentHandler, newConsultName = []){
         console.log('New street requested');
         address = Number.value !== undefined ? `${Street.value} ${Number.value}` : Street.value + '1';
         planeamiento = await getPlaneamiento(address);
+
         setSessionParams(handlerInput, {
             ...sessionAttrs,
             street: planeamiento.parsedStreet,
             planeamiento: planeamiento.planeamiento,
             history: sessionAttrs.hasOwnProperty('history') ? [...sessionAttrs.history, planeamiento.parsedStreet] : [planeamiento.parsedStreet],
+            intentsHistoryCounter: addIntentsCount(sessionAttrs, newConsultName),
+            petitionsHistory: addPetition({...sessionAttrs, street: planeamiento.parsedStreet}, handlerInput, newConsultName),
             consulted: newConsultName !== [] ? newConsultName : [],
         });
     } else {
         console.log('newConsultName: ', newConsultName);
         setSessionParams(handlerInput, {
             ...sessionAttrs,
-            consulted: sessionAttrs.consulted != undefined ? [...new Set(sessionAttrs.consulted.concat(newConsultName))] : newConsultName
+            consulted: sessionAttrs.consulted != undefined ? [...new Set(sessionAttrs.consulted.concat(newConsultName))] : newConsultName,
+            intentsHistoryCounter: addIntentsCount(sessionAttrs, newConsultName),
+            petitionsHistory: addPetition(sessionAttrs, handlerInput, newConsultName)
         });
         planeamiento = {
             planeamiento: sessionAttrs.planeamiento,
@@ -73,7 +97,7 @@ function setSessionParams(handlerInput, params){
 
 
 const getSuggestions = (handlerInput, out='') => {
-    let sessionAttrs = handlerInput.attributesManager.getSessionAttributes()
+    let sessionAttrs = handlerInput.attributesManager.getSessionAttributes();
     let consulted = sessionAttrs.consulted;
     let available = ['mail', 'edificabilidad', 'protección', 'expediente', 'normativa', 'usos'];
     console.log('getSuggestions//consulted: ', consulted);
@@ -82,12 +106,14 @@ const getSuggestions = (handlerInput, out='') => {
         if (toConsult.includes("mail") && (!out.includes("No hay información") && !out.includes("no está protegido."))){
             return '¿Quieres que te envíe un correo con la información que he encontrado?'
         } else {
-            toConsult = toConsult.filter( el => el != 'mail').slice(0, 2)
-            return 'Puedes preguntar por ' + toConsult.join(' o ') + ' en la misma ubicación'
+            toConsult = toConsult.filter( el => el != 'mail').slice(0, 2);
+            const asserter = ["Puedes preguntar por ", "También te puedo informar sobre ", "Puedes consultar sobre ", "Puedo informarte sobre "].random();
+            const there = [' en la misma ubicación', ' en esa dirección', ' en el mismo lugar', ' en esa ubicación'].random();
+            return asserter + toConsult.join(' o ') + there;
         }
     }
     return ''
-}
+};
 
 
 const LaunchRequestHandler = {
@@ -97,48 +123,15 @@ const LaunchRequestHandler = {
     async handle(handlerInput) {
         const { attributesManager } = handlerInput;
         const attributes = await attributesManager.getPersistentAttributes() || {};
-        const { apiAccessToken, apiEndpoint, user } = handlerInput.requestEnvelope.context.System;
-        const getEmailUrl = apiEndpoint.concat(
-            `/v2/accounts/~current/settings/Profile.email`
-        );
-        const getName = apiEndpoint.concat(
-            `/v2/accounts/~current/settings/Profile.givenName`
-        );
 
-        let mailResult = "";
-        try {
-            mailResult = await axios.get(getEmailUrl, {
-                headers: {
-                    Accept: "application/json",
-                    Authorization: "Bearer " + apiAccessToken
-                }
-            });
-        } catch (error) {
-            console.log(error);
-        }
-
-        let nameResult = "";
-        try {
-            nameResult = await axios.get(getName, {
-                headers: {
-                    Accept: "application/json",
-                    Authorization: "Bearer " + apiAccessToken
-                }
-            });
-        } catch (error) {
-            console.log(error);
-        }
-
-        const email = mailResult && mailResult.data;
-        const name = nameResult && nameResult.data;
-
+        const email = await getUserMail(handlerInput);
+        const name = await getUserName(handlerInput);
         console.log( name + ', your email is ' + email);
 
         let speakOutput = `Hola, soy Cibeles. Estoy preparada para responderte a preguntas urbanísticas sobre usos, edificabilidades, normativa, protección o expedientes. ¿Sobre qué quieres información?`;
 
         if(Object.keys(attributes).length > 0){
             attributesManager.setSessionAttributes({...attributes, email: email});
-            console.log('Attributes');
             speakOutput = `Hola ${name}, puedo seguir informándote sobre ${attributes.street} o puedes consultarme sobre una dirección nueva`;
         }
 
@@ -220,14 +213,37 @@ const HelpIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'AMAZON.HelpIntent'),
     handle: (handlerInput) => alexaSpeak(handlerInput,'Me puedes pregutar ¿qué puedes hacer?')
 };
+const ThanksIntentHandler = {
+    canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Thanks'),
+    handle: (handlerInput) => {
+        let speechOutput = ["No hay de qué!", "Es un placer ayudarte", "Para eso estamos", "No hay nada como la amabilidad madrileña!", "Un placer", "Encantada de ayudar"].random();
+        return handlerInput.responseBuilder.speak(speechOutput).getResponse();
+    }
+};
+
+const PersonalIntentHandler = {
+    canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Personal'),
+    handle: (handlerInput) => {
+        let speechOutput = ["Todavía no estoy preparada para informarte de tus trámites con el Ayuntamiento. "].random();
+        return alexaSpeak(handlerInput,speechOutput + getSuggestions(handlerInput))
+    }
+};
+
 const CancelAndStopIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'AMAZON.CancelIntent') || alexaCanHandle(handlerInput, 'AMAZON.StopIntent'),
     async handle(handlerInput) {
-        let history = handlerInput.attributesManager.getSessionAttributes().history;
-        console.log('Recordingn streets: ' + history);
+        let history = handlerInput.attributesManager.getSessionAttributes().history || {};
+        let intentHistoryCount = handlerInput.attributesManager.getSessionAttributes().intentsHistoryCounter || {};
+        let petitionsHistory = handlerInput.attributesManager.getSessionAttributes().petitionsHistory || {};
+        let street = handlerInput.attributesManager.getSessionAttributes().street;
+        let planeamiento = handlerInput.attributesManager.getSessionAttributes().planeamiento;
         await recordManyStreets(history);
-        console.log('Streets recorded');
-        return handlerInput.responseBuilder.speak('Adiós').getResponse();
+        await recordManyIntents(intentHistoryCount);
+        await recordManyPetitions(petitionsHistory);
+        handlerInput.attributesManager.setPersistentAttributes({street: street, planeamiento: planeamiento});
+        await handlerInput.attributesManager.savePersistentAttributes();
+        let speechOutput = ["Hasta pronto!", "Hasta luego!", "Hasta la vista!", "Nos vemos por Madrid!", "Que tengas un buen día", "Nos vemos", "Nos vemos, espero haber sido de ayuda"].random();
+        return handlerInput.responseBuilder.speak(speechOutput).getResponse();
     }
 };
 const SessionEndedRequestHandler = {
@@ -238,11 +254,12 @@ const SessionEndedRequestHandler = {
         // Any cleanup logic goes here.
         let street = handlerInput.attributesManager.getSessionAttributes().street;
         let planeamiento = handlerInput.attributesManager.getSessionAttributes().planeamiento;
-        let consulted = handlerInput.attributesManager.getSessionAttributes().consulted;
         let history = handlerInput.attributesManager.getSessionAttributes().history;
-        console.log('Recordingn streets: ' + history);
+        let intentHistoryCount = handlerInput.attributesManager.getSessionAttributes().intentsHistoryCounter || {};
+        let petitionsHistory = handlerInput.attributesManager.getSessionAttributes().petitionsHistory || {};
         await recordManyStreets(history);
-        console.log('Streets recorded');
+        await recordManyIntents(intentHistoryCount);
+        await recordManyPetitions(petitionsHistory);
         handlerInput.attributesManager.setPersistentAttributes({street: street, planeamiento: planeamiento});
         await handlerInput.attributesManager.savePersistentAttributes();
         return handlerInput.responseBuilder.getResponse();
@@ -259,7 +276,7 @@ const IntentReflectorHandler = {
     },
     handle(handlerInput) {
         const intentName = Alexa.getIntentName(handlerInput.requestEnvelope);
-        const speakOutput = `Has activado ${intentName}. Comunicaselo a mis creadores.`;
+        const speakOutput = `Estoy encantada de ayudar. Puedes hacerme una consulta sobre urbanismo`;
 
         return alexaSpeak(handlerInput, speakOutput)
     }
@@ -280,8 +297,8 @@ const ErrorHandler = {
 };
 
 Array.prototype.random = function(){
-  return this[Math.floor(Math.random()*this.length)];
-}
+    return this[Math.floor(Math.random()*this.length)];
+};
 
 // The SkillBuilder acts as the entry point for your skill, routing all request and response
 // payloads to the handlers above. Make sure any new handlers or interceptors you've
@@ -293,6 +310,7 @@ exports.handler = Alexa.SkillBuilders.custom()
         HelpIntentHandler,
         CancelAndStopIntentHandler,
         SessionEndedRequestHandler,
+        GeneralInfoIntentHandler,
         EdificabilityIntentHandler,
         ProtectionGeneralIntentHandler,
         ProtectionCatalogueIntentHandler,
@@ -305,6 +323,8 @@ exports.handler = Alexa.SkillBuilders.custom()
         RecordIntentHandler,
         MailIntentHandler,
         NoIntentHandler,
+        ThanksIntentHandler,
+        PersonalIntentHandler,
         IntentReflectorHandler, // make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
     )
     .addErrorHandlers(

@@ -1,7 +1,7 @@
 const AWS = require('aws-sdk');
-let dynamoDB = new AWS.DynamoDB();
+let dynamoDB = new AWS.DynamoDB({ region: 'us-east-1'});
 const http = require('http');
-
+const axios = require('axios');
 
 const recordStreet = async (street) => {
   try {
@@ -15,10 +15,7 @@ const recordStreet = async (street) => {
               ':inc': { N: '1' }, ':zero': { N: '0' }},
           ReturnValues: 'ALL_NEW'
       };
-        console.log("Invoked counter-test");
         const data = await dynamoDB.updateItem(params).promise();
-        console.log(data);
-        console.log("Updated counter");
         const response = {
             statusCode: 200,
             body: JSON.stringify('Counter updated'),
@@ -30,9 +27,58 @@ const recordStreet = async (street) => {
     }
 };
 
-const recordManyStreets = async (streets) => {
-    return streets.map(async street => await recordStreet(street));
+const recordManyStreets = async (streets) => streets.map(async street => await recordStreet(street));
+
+const recordIntent = async (intentName, count) => {
+  try {
+      let params = {
+          TableName: 'CibelesIntents',
+          Key: {
+              'intent': { S: intentName }},
+          UpdateExpression: 'SET #val = if_not_exists(#val, :zero) + :inc, #last = :time',
+          ExpressionAttributeNames: { '#val': 'Value', '#last': 'last_request' },
+          ExpressionAttributeValues: {
+              ':inc': { N: count.toString() }, ':zero': { N: '0' }, ':time' : { N: Date.now().toString()}},
+          ReturnValues: 'ALL_NEW'
+      };
+      const data = await dynamoDB.updateItem(params).promise();
+      return {
+            statusCode: 200,
+            body: JSON.stringify('Counter updated'),
+        };
+    } catch (err) {
+      console.log(err, err.stack);
+      return { statusCode: 400 }
+    }
 };
+
+const recordManyIntents = async (intents) => Object.keys(intents).map(async k => await recordIntent(k, intents[k]));
+
+const recordPetition = async (petition) => {
+    let query =  {
+        RequestItems: {
+            ['CibelesPetitions']: [{
+                PutRequest: {
+                    Item: {
+                         time: {"N": petition.time},
+                            intent: {"S": petition.intent},
+                            address: {"S": petition.address},
+                            user: {"S": petition.user},
+                            source: {"S": petition.source}
+                    }
+                }
+            }]
+        }
+    };
+    return new Promise(resolve => {
+        dynamoDB.batchWriteItem(query, function (err, data){
+            return err ? resolve( console.error("Unable to add item. Error JSON:", JSON.stringify(err, null, 2)))
+                : resolve('Success');
+        })
+    });
+};
+
+const recordManyPetitions = async (petitions) => petitions.map(async petition => await recordPetition(petition));
 
 const dynamoRecord = (queries, correct, attendedBy, tableName) => {
     let query =  {
@@ -53,7 +99,6 @@ const dynamoRecord = (queries, correct, attendedBy, tableName) => {
             }]
         }
     };
-    console.log(query);
 
     return new Promise(resolve => {
         dynamoDB.batchWriteItem(query, function (err, data){
@@ -82,50 +127,20 @@ const recordQuery = (agent, intent) => {
     agent.setContext(context);
 };
 
-const getUserParams = (token, param) => {
-    return new Promise((resolve, reject) => {
-        const options = {
-            host: encodeURI('api.eu.amazonalexa.com'),
-            path: encodeURI('/v2/accounts/~current/settings/Profile.'+ param),
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        };
-
-        const request = http.request(options, response => {
-
-            console.log(response);
-            response.setEncoding('binary');
-            let returnData = '';
-
-            if (response.statusCode < 200 || response.statusCode >= 300) {
-                return reject(new Error(`${response.statusCode}: ${response.req.getHeader('host')} ${response.req.path}`));
-            }
-            response.on('data', chunk => {
-                returnData += chunk;
-            });
-            response.on('end', () => resolve(returnData));
-            response.on('error', error => {
-                console.log(error);
-                reject(error)});
-        });
-        request.end();
-    });
-};
-
 const getHttp = (url, query, username = 'DUINNOVA', passw = 'Texeira1656') => {
     return new Promise((resolve, reject) => {
         const options = {
             host: encodeURI(url),
             path: encodeURI(query),
             headers: {
-                'Authorization': 'Basic ' + Buffer.from(username + ':' + passw).toString('base64')
+                'Authorization': 'Basic ' + Buffer.from(username + ':' + passw).toString('base64'),
+                'Content-type': 'application/json; charset=utf-8'
             }
         };
 
         const request = http.request(options, response => {
 
-            console.log(response);
+            console.log("response", response);
             response.setEncoding('binary');
             let returnData = '';
 
@@ -149,9 +164,9 @@ const toTitleCase = (phrase) => {
         .toLowerCase()
         .split(' ')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
+        .join(' ')
+        .replace('ã', 'ñ');
 };
-
 
 const sendMail = async (mail, info, address) => {
     const ses = new AWS.SES({region: 'us-east-1'});
@@ -172,18 +187,37 @@ const sendMail = async (mail, info, address) => {
         },
         Source: "ayto.saturnolabs@gmail.com"
     };
-    console.log(params);
-    return ses.sendEmail(params, function (err, data) {
-        console.log('sending mail');
-        console.log(data);
-        console.log(err);
-        if (err) {
-            return false;
-        } else {
-            return true;
-        }
+    return ses.sendEmail(params, function (err) {
+        return !err;
     });
 
+};
+
+const axiosRequest = async (url, token) => {
+    let result = "";
+    try {
+        result = await axios.get(url, {
+            headers: {
+                Accept: "application/json",
+                Authorization: "Bearer " + token
+            }
+        });
+    } catch (error) {
+        console.log(error);
+    }
+    return result && result.data;
+};
+
+const getUserName = async (handlerInput) => {
+    const { apiAccessToken, apiEndpoint } = handlerInput.requestEnvelope.context.System;
+    const url = apiEndpoint.concat(`/v2/accounts/~current/settings/Profile.givenName`);
+    return axiosRequest(url, apiAccessToken);
+};
+
+const getUserMail = async (handlerInput) => {
+    const { apiAccessToken, apiEndpoint } = handlerInput.requestEnvelope.context.System;
+    const url = apiEndpoint.concat(`/v2/accounts/~current/settings/Profile.email`);
+    return axiosRequest(url, apiAccessToken);
 };
 
 module.exports = {
@@ -191,7 +225,13 @@ module.exports = {
     recordQuery,
     getHttp,
     toTitleCase,
-    getUserParams,
     sendMail,
-    recordManyStreets
+    recordManyStreets,
+    recordManyIntents,
+    recordManyPetitions,
+    recordStreet,
+    recordIntent,
+    recordPetition,
+    getUserName,
+    getUserMail
 };

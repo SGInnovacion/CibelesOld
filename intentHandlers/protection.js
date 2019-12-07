@@ -14,9 +14,11 @@ const general = async street => {
   const anyCatalogue = Object.keys(catalogo).find(key => catalogo[key] !== [] && catalogo[key][0] && catalogo[key][0].proteccionActual !== undefined)
   const affectedPatrimonio = patrimonioHistorico && patrimonioHistorico.length !== 0
 
+
     speechText += anyCatalogue ? `tiene un grado de protección ${catalogo[anyCatalogue][0].proteccionActual} como ${anyCatalogue}. ` : '';
     speechText += affectedPatrimonio ? 'Forma parte del Patrimonio Histórico de la Comunidad de Madrid. '
         : '';
+
 
   if (perteneceArrabalFelipeII && perteneceAPE0001) {
     speechText += 'Además, pertenece a la cerca y Arrabal de Felipe II y al APE0001. '

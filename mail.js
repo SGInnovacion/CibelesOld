@@ -221,6 +221,7 @@ body{
      display: flex;
      flex-direction: column;
      /*padding: 0.3em;*/
+     padding: 1.4em;
      margin-bottom: 15px;
 }
 @media (max-width: 500px) {
@@ -267,7 +268,7 @@ body{
 .proteccion{
      background-color: #f5f5f5;
      padding: 1.4em;
-     color: white;
+     color: black;
      margin: 0.3em;
 }
 .patr-table{
@@ -308,7 +309,7 @@ const fillMail = (plan = '', address) => {
             <table border="0" cellpadding="0" cellspacing="0" class="container" width="100%" style="height: 50px; width: 100%; background-color: #003df6">
                 <tr>
                     <td align="left" width="60%" style="padding: 8px;">
-                        <span style="font-size: 1.5em; color: white">Urbanismo</span>
+                        <span style="font-size: 1.5em; color: white"></span>
                     </td>
                     <td align="right" width="40%" style="padding: 5px;">
                         <img class='logo' style="height: 40px; object-fit: contain" src="https://identidad.madrid.es/wp-content/uploads/2018/12/firma_madrid_blanco.png">
@@ -326,6 +327,8 @@ const fillMail = (plan = '', address) => {
                       <div class="col-izda">
                       ${parseGeneralInfo(plan.parcela)}
                       </div>
+                 </div>
+                 <div class="section-info">
                       <div class="col-dcha">
                            <table class='uses-table' style="width:100%">
                                   <tr>
