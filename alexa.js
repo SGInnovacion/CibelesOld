@@ -221,7 +221,7 @@ const HelpIntentHandler = {
 const ThanksIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Thanks'),
     handle: (handlerInput) => {
-        let speechOutput = ["No hay de qué!", "Es un placer ayudarte", "Para eso estamos", "No hay nada como la amabilidad madrileña!", "Un placer", "Encantada de ayudar"].random();
+        let speechOutput = ["¡No hay de qué!", "Es un placer ayudarte", "Para eso estamos", "No hay nada como la amabilidad madrileña!", "Un placer", "Encantada de ayudar"].random();
         return handlerInput.responseBuilder.speak(speechOutput).getResponse();
     }
 };
@@ -231,8 +231,8 @@ const PersonalIntentHandler = {
     handle: (handlerInput) => {
         let speechOutput = [
         "Según me han dicho, podré contestar a preguntas como la tuya en poco tiempo. ", 
-        "¡Una gran pregunta requiere una adecuada respuesta! Nos estamos preparando para poder dártela.", 
-        "Sería estupendo responderte ¿verdad? Estamos trabajando en ello."
+        "¡Una gran pregunta requiere una adecuada respuesta! Nos estamos preparando para poder dártela. ", 
+        "Sería estupendo responderte ¿verdad? Estamos trabajando en ello. "
         ].random();
         return alexaSpeak(handlerInput,speechOutput)
     }
