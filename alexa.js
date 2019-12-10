@@ -234,7 +234,7 @@ const PersonalIntentHandler = {
         "¡Una gran pregunta requiere una adecuada respuesta! Nos estamos preparando para poder dártela.", 
         "Sería estupendo responderte ¿verdad? Estamos trabajando en ello."
         ].random();
-        return alexaSpeak(handlerInput,speechOutput + getSuggestions(handlerInput))
+        return alexaSpeak(handlerInput,speechOutput)
     }
 };
 
