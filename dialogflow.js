@@ -39,6 +39,13 @@ router.post('/', (request, response) => {
             consulted = newConsultName;
             planeamiento = await getPlaneamiento(street);
 
+            let wantedNumber = street.match(/\d+/g).pop();
+            let receivedNumber = planeamiento && planeamiento.parsedStreet ? planeamiento.parsedStreet.match(/\d+/g).pop() : 0;
+            if (wantedNumber !== receivedNumber) {
+                agent.add(`No existe el número ${wantedNumber} en la calle solicitada.`);
+                return;
+            }
+
         } else {
             try {
                 street = agent.getContext('session-variables').parameters.street;
@@ -66,7 +73,6 @@ router.post('/', (request, response) => {
 
         let out = await intentHandler(planeamiento || street, true);
         console.log('Output: ' + out);
-
 
         agent.add(out + getSuggestions(consulted));
         //         try {

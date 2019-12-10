@@ -52,6 +52,12 @@ async function parseAlexa(handlerInput, intentHandler, newConsultName = []){
         address = Number.value !== undefined ? `${Street.value} ${Number.value}` : Street.value + '1';
         planeamiento = await getPlaneamiento(address);
 
+        let wantedNumber = address.match(/\d+/g).pop();
+        let receivedNumber = planeamiento.parsedStreet.match(/\d+/g).pop();
+        if (wantedNumber !== receivedNumber) {
+            return alexaSpeak(handlerInput,  `No existe el número ${wantedNumber} en la calle solicitada.`);
+        }
+
         setSessionParams(handlerInput, {
             ...sessionAttrs,
             street: planeamiento.parsedStreet,
@@ -73,7 +79,6 @@ async function parseAlexa(handlerInput, intentHandler, newConsultName = []){
             planeamiento: sessionAttrs.planeamiento,
             parsedStreet: sessionAttrs.street,
         };
-
         console.log('consulted: ', sessionAttrs.consulted);
     }
 
