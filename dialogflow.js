@@ -59,10 +59,9 @@ router.post('/', (request, response) => {
                 if (number.length === 0) {
                     console.log('There is no number stored, we will ask the user for one');
                     console.log(e);
-                    agent.add('¿Puedes decirme el número?');
+                    agent.add('¿Puedes decirme el número?')
                 }
-                
-                return;
+                return
             }
         }
 

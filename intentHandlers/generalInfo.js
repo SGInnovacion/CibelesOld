@@ -18,14 +18,6 @@ module.exports = async (street) => {
   ambitoEtiqueta = response.parcela.ambitoEtiqueta
   ambitoDenominacion = response.parcela.ambitoDenominacion
   area = response.parcela.usos[0].usoEdificabilidad
-  console.log('[INFO] zonaUrbanistica')
-  console.log(zonaUrbanistica)
-  console.log('[INFO] ambitoDenominacion')
-  console.log(ambitoDenominacion)
-  console.log('[INFO] ambitoEtiqueta')
-  console.log(ambitoEtiqueta)
-  console.log('[INFO] Area')
-  console.log(area)
 
   if (zonaUrbanistica != '---') {
     speechText += `Pertenece a la zona urbanística ${zonaUrbanistica}. `
@@ -37,11 +29,6 @@ module.exports = async (street) => {
 
   const lastRecord = response.historicoExpedientes && response.historicoExpedientes.expedsHcosPlan && response.historicoExpedientes.expedsHcosPlan.length > 0
     ? response.historicoExpedientes.expedsHcosPlan[0] : false
-
-  console.log('[INFO] Current record')
-  console.log(current)
-  console.log('[INFO] Last record:')
-  console.log(lastRecord)
 
   speechText += current ? `El expediente vigente es el ${current[0].numero} con denominación ${current[0].denominacion}. `
     : lastRecord ? `El último expediente del histórico es el ${lastRecord.numero} con denominación ${lastRecord.denominacion}. `
