@@ -32,6 +32,7 @@ router.post('/', (request, response) => {
     const fallback = agent => recordQuery(agent, "Default fallback");
 
     async function parseDialog(agent, intentHandler, newConsultName=[]){
+        console.log('Parameters')
         let address = agent.parameters.address
         let number = agent.parameters.number.toString()
         let street = address + ' ' + number
