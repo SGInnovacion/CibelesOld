@@ -229,7 +229,11 @@ const ThanksIntentHandler = {
 const PersonalIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Personal'),
     handle: (handlerInput) => {
-        let speechOutput = ["Todavía no estoy preparada para informarte de tus trámites con el Ayuntamiento. "].random();
+        let speechOutput = [
+        "Según me han dicho, podré contestar a preguntas como la tuya en poco tiempo. ", 
+        "¡Una gran pregunta requiere una adecuada respuesta! Nos estamos preparando para poder dártela.", 
+        "Sería estupendo responderte ¿verdad? Estamos trabajando en ello."
+        ].random();
         return alexaSpeak(handlerInput,speechOutput + getSuggestions(handlerInput))
     }
 };
