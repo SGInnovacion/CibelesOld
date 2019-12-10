@@ -118,12 +118,16 @@ const planeamientoNdp = async (ndp = '11138219') => {
 const bdcSearch = async (street) => {
     const path = `/BDCTR_RSGENERAL/restBDC/validarEspaguetti?cadena=${street}`;
     return getHttp(BDC_URL, path).then(res => {
+        console.log("bdcSearch: ", res)
         return JSON.parse(res)[0];
     })
 };
 
 async function getPlaneamiento(street) {
     let result = await bdcSearch(street);
+    if (result.codigoNdps === 0) {
+        result = await bdcSearch(street + ' 1'); // da timeout!!!!
+    }
     let NDP = result.codigoNdps;
     let claseVial = result.claseVial;
     let nombre = result.viales;
@@ -131,7 +135,7 @@ async function getPlaneamiento(street) {
     let calificador = result.calificador;
     let parsedStreet = toTitleCase(`${claseVial} ${nombre} ${numero} ${calificador.toUpperCase()}`);
     let planeamiento = await planeamientoNdp(NDP);
-    console.log(planeamiento)
+    console.log("planeamiento: ", planeamiento)
     console.log(parsedStreet)
     return { planeamiento: planeamiento, parsedStreet: parsedStreet.trim()};
 };

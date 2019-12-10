@@ -29,9 +29,6 @@ router.post('/', (request, response) => {
     console.log('request');
     console.log(request);
     const agent = new WebhookClient({ request, response });
-
-    // As handler logic grows please move to intentHandlers/ folder as done with correctRequest.js
-
     const fallback = agent => recordQuery(agent, "Default fallback");
 
     async function parseDialog(agent, intentHandler, newConsultName=[]){
