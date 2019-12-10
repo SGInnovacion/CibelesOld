@@ -172,14 +172,16 @@ const parseHistoricoExpte = history => {
             if (history.length === 0 ) return '';
             else {
                 out = `
-                                <table class='planeamiento-table' style="width:100%">
-                                   `;
+                      <table class='planeamiento-table' style="width:100%">
+                      `;
 
                 history.map(h => {
                     out += `
-                              <tr>
-                                <td>${h.numero} ${h.denominacion}</td>
-                              </tr>
+                              <tr><td>
+                              <a href="http://www-2.munimadrid.es/urbanismo_inter/visualizador/verActualizacionFichas.do?expediente=${h.numero}">
+                                ${h.numero} ${h.denominacion}
+                              </a>
+                              </td></tr>
                               <tr>
                                 <td>${h.fase} ${h.fechaAprobacion}</td>
                               </tr>
@@ -291,6 +293,16 @@ body{
 const fillMail = (plan = '', address) => {
 
     let out = '';
+    let hasExp = parseHistoricoExpte(plan.historicoExpedientes.expedsHcosPlan) !== ''
+        || parseHistoricoExpte(plan.historicoExpedientes.expedsHcosPlan) !== ''
+        || parseHistoricoExpte(plan.historicoExpedientes.expedsHcosUrb) !== '';
+
+    console.log(parseHistoricoExpte(plan.historicoExpedientes.expedsHcosPlan) !== '')
+    console.log(parseHistoricoExpte(plan.historicoExpedientes.expedsHcosGes) !== '')
+    console.log(parseHistoricoExpte(plan.historicoExpedientes.expedsHcosUrb) !== '')
+    console.log(hasExp);
+    console.log(plan.historicoExpedientes);
+
 
     try{
         out = `
@@ -356,11 +368,8 @@ const fillMail = (plan = '', address) => {
         ${parseCAM(plan.patrimonioHistorico)}
 
         ${
-                (parseHistoricoExpte(plan.historicoExpedientes.expedsHcosPlan) !== '' || 
-                parseHistoricoExpte(plan.historicoExpedientes.expedsHcosGes !== '' || 
-                parseHistoricoExpte(plan.historicoExpedientes.expedsHcosUrb !== '' 
-                )))  ? `
-                
+                (hasExp)  ? `
+              
                 <div class="historico">
                 <div class="section-title">Histórico de expedientes</div>
                 ${parseHistoricoExpte(plan.historicoExpedientes.expedsHcosPlan) !== '' ? `

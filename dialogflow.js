@@ -37,10 +37,12 @@ router.post('/', (request, response) => {
         if (street.length > 0) {
             console.log('A new street was received');
             consulted = newConsultName;
+            let hasNumber = street.match(/\d+/g);
+            street = hasNumber ? street : street + ' 1';
             planeamiento = await getPlaneamiento(street);
 
-            let wantedNumber = street.match(/\d+/g).pop();
-            let receivedNumber = planeamiento && planeamiento.parsedStreet ? planeamiento.parsedStreet.match(/\d+/g).pop() : 0;
+            let wantedNumber = street.match(/\d+/g) && street.match(/\d+/g).pop() || -1;
+            let receivedNumber = planeamiento && planeamiento.parsedStreet&& planeamiento.parsedStreet.match(/\d+/g) ? planeamiento.parsedStreet.match(/\d+/g).pop() : 0;
             if (wantedNumber !== receivedNumber) {
                 agent.add(`No existe el número ${wantedNumber} en la calle solicitada.`);
                 return;
