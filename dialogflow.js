@@ -32,12 +32,15 @@ router.post('/', (request, response) => {
     const fallback = agent => recordQuery(agent, "Default fallback");
 
     async function parseDialog(agent, intentHandler, newConsultName=[]){
-        let street = agent.parameters.address;
+        let address = agent.parameters.address
+        let number = agent.parameters.number.toString()
+        let street = address + ' ' + number
         let consulted = [];
         let planeamiento = false;
         console.log('street: ' + street);
-        if (street.length > 0) {
+        if (street.length > 0 && number.length > 0) {
             console.log('A new street was received');
+            
             consulted = newConsultName;
             planeamiento = await getPlaneamiento(street);
 
@@ -48,9 +51,17 @@ router.post('/', (request, response) => {
                 console.log('We will be using the street stored in the session-variables');
                 consulted = [...new Set(agent.getContext('session-variables').parameters.consulted.concat(newConsultName))];
             } catch (e) {
-                console.log('There is no street stored, we will ask the user for one');
-                console.log(e);
-                agent.add('¿Puedes decirme la calle?');
+                if (address.length === 0) {
+                    console.log('There is no street stored, we will ask the user for one');
+                    console.log(e);
+                    agent.add('¿Puedes decirme la calle?');
+                }
+                if (number.length === 0) {
+                    console.log('There is no number stored, we will ask the user for one');
+                    console.log(e);
+                    agent.add('¿Puedes decirme el número?');
+                }
+                
                 return;
             }
         }

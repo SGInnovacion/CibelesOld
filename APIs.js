@@ -125,10 +125,8 @@ const bdcSearch = async (street) => {
 
 async function getPlaneamiento(street) {
     let result = await bdcSearch(street);
-    if (result.codigoNdps === 0) {
-        result = await bdcSearch(street + ' 1'); // da timeout!!!!
-    }
     let NDP = result.codigoNdps;
+    if (NDP === 0) { return false}
     let claseVial = result.claseVial;
     let nombre = result.viales;
     let numero = result.numeros || '';

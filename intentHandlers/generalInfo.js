@@ -2,7 +2,7 @@ const { getPlaneamiento } = require('../APIs')
 
 module.exports = async (street) => {
   const address = (typeof street === 'string') ? await getPlaneamiento(street) : street
-  response = address.planeamiento
+  let response = address.planeamiento
   let speechText = ''
   const usos = address.planeamiento.parcela.usos
   console.log(usos)
