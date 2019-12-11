@@ -19,11 +19,11 @@ const general = async street => {
     : ''
 
   if (perteneceArrabalFelipeII && perteneceAPE0001) {
-    speechText += 'Además, pertenece a la cerca y Arrabal de Felipe II y al APE0001. '
+    speechText += 'Además, pertenece a la Cerca y Arrabal de Felipe II y al APE0001. '
   } else if (perteneceAPE0001) {
     speechText += 'Además, pertenece al APE0001. '
   } else if (perteneceArrabalFelipeII) {
-    speechText += 'Además, pertenece la cerca y Arrabal de Felipe II. '
+    speechText += 'Además, pertenece la Cerca y Arrabal de Felipe II. '
   }
   if (speechText === `${address.parsedStreet} `) {
     return speechText + 'no está protegido. '
@@ -37,8 +37,8 @@ const felipe = async street => {
   const perteneceArrabalFelipeII = response.parcela.perteneceArrabalFelipeII === 'true'
   console.log('Pertenece felipe o ape:', perteneceArrabalFelipeII)
 
-  const speechText = perteneceArrabalFelipeII ? `Sí, ${address.parsedStreet} pertenece la cerca y Arrabal de Felipe II. `
-    : `No, ${address.parsedStreet} no pertenece la cerca y Arrabal de Felipe II. `
+  const speechText = perteneceArrabalFelipeII ? `Sí, ${address.parsedStreet} pertenece la Cerca y Arrabal de Felipe II. `
+    : `No, ${address.parsedStreet} no pertenece la Cerca y Arrabal de Felipe II. `
   console.log('speechText: ', speechText)
   return speechText
 }
