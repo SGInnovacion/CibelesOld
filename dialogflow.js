@@ -29,17 +29,32 @@ router.post('/', (request, response) => {
     const agent = new WebhookClient({ request, response });
     const fallback = agent => recordQuery(agent, "Default fallback");
 
-    async function parseDialog(agent, intentHandler, newConsultName=[]){
+    /*async function parseDialog(agent, intentHandler, newConsultName=[]){
+        agent.add('Dialogflow is having some problems');
+        return;
         let street = agent.parameters.address
         let consulted = [];
         let planeamiento = false;
         console.log('street: ' + street);
         if (street.length > 0) {
+            try {
+                let isSame = street !== agent.getContext('session-variables').parameters.street;
+                console.log('isSameStreet: ' + isSame)
+                console.log('street: ', street)
+                console.log('lA OTRA: ', agent.getContext('session-variables').parameters.street)
+               if (isSame) {
+                   planeamiento = await getPlaneamiento(street);
+               } else {
+                   planeamiento = agent.getContext('session-variables').parameters.planeamiento;
+               }
+            } catch (e) {
+                planeamiento = await getPlaneamiento(street);
+            }
+
             console.log('A new street was received');
             consulted = newConsultName;
             let hasNumber = street.match(/\d+/g);
             street = hasNumber ? street : street + ' 1';
-            planeamiento = await getPlaneamiento(street);
 
             let wantedNumber = street.match(/\d+/g) && street.match(/\d+/g).pop() || -1;
             let receivedNumber = planeamiento && planeamiento.parsedStreet&& planeamiento.parsedStreet.match(/\d+/g) ? planeamiento.parsedStreet.match(/\d+/g).pop() : 0;
@@ -76,7 +91,7 @@ router.post('/', (request, response) => {
         let out = await intentHandler(planeamiento || street, true);
         console.log('Output: ' + out);
 
-        agent.add(out + getSuggestions(consulted));
+        return agent.add(out + getSuggestions(consulted));
         //         try {
         //     await recordIntent(newConsultName.length > 1 ? 'general' : newConsultName[0], 1);
         //     await recordStreet(planeamiento.parsedStreet);
@@ -90,6 +105,47 @@ router.post('/', (request, response) => {
         //     console.log('Analytics records crashed:');
         //     console.log(e);
         // }
+    }*/
+
+    async function parseDialog(agent, intentHandler, newConsultName=[]){
+        let street = agent.parameters.address;
+        let consulted = [];
+
+        if (street.length > 0) {
+            console.log('A new street was received');
+            consulted = newConsultName;
+            // Aquí iría el código para guardar la nueva calle en la bbdd para los analytics.
+        } else {
+            try {
+                street = agent.getContext('session-variables').parameters.street;
+                console.log('We will be using the street stored in the session-variables');
+                consulted = [...new Set(agent.getContext('session-variables').parameters.consulted.concat(newConsultName))];
+            } catch (e) {
+                console.log('There is no street stored, we will ask the user for one');
+                agent.add('¿Puedes decirme la calle?');
+                return
+            }
+        }
+
+
+        agent.setContext({ name: 'session-variables',
+            lifespan: 99999,
+            parameters: {
+                street: street,
+                consulted: consulted
+            }
+        });
+
+        let planeamiento = await getPlaneamiento(street);
+        let wantedNumber = street.match(/\d+/g) && street.match(/\d+/g).pop() || -1;
+        let receivedNumber = planeamiento && planeamiento.parsedStreet&& planeamiento.parsedStreet.match(/\d+/g) ? planeamiento.parsedStreet.match(/\d+/g).pop() : 0;
+        if (wantedNumber !== receivedNumber) {
+                agent.add(`No existe el número ${wantedNumber} en la calle solicitada.`);
+                return;
+        }
+        let out = await intentHandler(planeamiento, true);
+        console.log(out);
+        agent.add(out + getSuggestions(consulted));
     }
 
     // Run the proper function handler based on the matched Dialogflow intent name
@@ -106,7 +162,7 @@ router.post('/', (request, response) => {
     intentMap.set('Regulations', agent => parseDialog(agent, getRegulations, ['normativa']));
     intentMap.set('Record', agent => parseDialog(agent, getRecord, ['expediente']));
     intentMap.set('Use', agent => parseDialog(agent, getUse, ['usos']));
-    agent.handleRequest(intentMap);
+    return agent.handleRequest(intentMap);
 });
 
 const getSuggestions = (consulted=[]) => {
