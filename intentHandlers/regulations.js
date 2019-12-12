@@ -25,7 +25,7 @@ module.exports = async (street) => {
   }
   speechText += `El ámbito de ${address.parsedStreet} es ${ambitoEtiqueta} `
   speechText += `y su denominación es ${ambitoDenominacion}. `
-  speechText += area !== '---' ? `Además, se puede construir ${area} metros cuadrados. ` : '';
+  speechText += area !== '---' ? `Además, se pueden construir ${area.replace('.', ',')} metros cuadrados. ` : '';
 
   return speechText
 }

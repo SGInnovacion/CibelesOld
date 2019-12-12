@@ -52,6 +52,12 @@ async function parseAlexa(handlerInput, intentHandler, newConsultName = []){
         address = Number.value !== undefined ? `${Street.value} ${Number.value}` : Street.value + '1';
         planeamiento = await getPlaneamiento(address);
 
+        let wantedNumber = address.match(/\d+/g).pop();
+        let receivedNumber = planeamiento.parsedStreet.match(/\d+/g).pop();
+        if (wantedNumber !== receivedNumber) {
+            return alexaSpeak(handlerInput,  `No existe el número ${wantedNumber} en la calle solicitada.`);
+        }
+
         setSessionParams(handlerInput, {
             ...sessionAttrs,
             street: planeamiento.parsedStreet,
@@ -73,7 +79,6 @@ async function parseAlexa(handlerInput, intentHandler, newConsultName = []){
             planeamiento: sessionAttrs.planeamiento,
             parsedStreet: sessionAttrs.street,
         };
-
         console.log('consulted: ', sessionAttrs.consulted);
     }
 
@@ -216,7 +221,7 @@ const HelpIntentHandler = {
 const ThanksIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Thanks'),
     handle: (handlerInput) => {
-        let speechOutput = ["No hay de qué!", "Es un placer ayudarte", "Para eso estamos", "No hay nada como la amabilidad madrileña!", "Un placer", "Encantada de ayudar"].random();
+        let speechOutput = ["¡No hay de qué!", "Es un placer ayudarte", "Para eso estamos", "No hay nada como la amabilidad madrileña!", "Un placer", "Encantada de ayudar"].random();
         return handlerInput.responseBuilder.speak(speechOutput).getResponse();
     }
 };
@@ -224,8 +229,12 @@ const ThanksIntentHandler = {
 const PersonalIntentHandler = {
     canHandle: (handlerInput) => alexaCanHandle(handlerInput, 'Personal'),
     handle: (handlerInput) => {
-        let speechOutput = ["Todavía no estoy preparada para informarte de tus trámites con el Ayuntamiento. "].random();
-        return alexaSpeak(handlerInput,speechOutput + getSuggestions(handlerInput))
+        let speechOutput = [
+        "Según me han dicho, podré contestar a preguntas como la tuya en poco tiempo. ", 
+        "¡Una gran pregunta requiere una adecuada respuesta! Nos estamos preparando para poder dártela. ", 
+        "Sería estupendo responderte ¿verdad? Estamos trabajando en ello. "
+        ].random();
+        return alexaSpeak(handlerInput,speechOutput)
     }
 };
 

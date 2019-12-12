@@ -133,14 +133,12 @@ const getHttp = (url, query, username = 'DUINNOVA', passw = 'Texeira1656') => {
             host: encodeURI(url),
             path: encodeURI(query),
             headers: {
-                'Authorization': 'Basic ' + Buffer.from(username + ':' + passw).toString('base64'),
-                'Content-type': 'application/json; charset=utf-8'
+                'Authorization': 'Basic ' + Buffer.from(username + ':' + passw).toString('base64')
             }
         };
 
         const request = http.request(options, response => {
 
-            console.log("response", response);
             response.setEncoding('binary');
             let returnData = '';
 
