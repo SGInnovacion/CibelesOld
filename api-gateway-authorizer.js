@@ -1,4 +1,18 @@
 /*
+* copyright 2020 Ayuntamiento de Madrid. Subdirección General de Innovación e Información Urbana
+* Licencia con arreglo a la EUPL, Versión 1.2 o –en cuanto sean aprobadas por la
+Comisión Europea– versiones posteriores de la EUPL (la «Licencia»);
+* Solo podrá usarse esta obra si se respeta la Licencia.
+* Puede obtenerse una copia de la Licencia en:
+* http://joinup.ec.europa.eu/software/page/eupl/licence-eupl
+* Salvo cuando lo exija la legislación aplicable o se acuerde por escrito, el programa
+distribuido con arreglo a la Licencia se distribuye «TAL CUAL», SIN GARANTÍAS NI
+CONDICIONES DE NINGÚN TIPO, ni expresas ni implícitas.
+* Véase la Licencia en el idioma concreto que rige los permisos y limitaciones que
+establece la Licencia.
+*/
+
+/*
 * Copyright 2015-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 *
 * Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. A copy of the License is located at
