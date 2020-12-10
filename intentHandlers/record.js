@@ -1,5 +1,4 @@
 /*
-* copyright 2020 Ayuntamiento de Madrid. Subdirección General de Innovación e Información Urbana
 * Licencia con arreglo a la EUPL, Versión 1.2 o –en cuanto sean aprobadas por la
 Comisión Europea– versiones posteriores de la EUPL (la «Licencia»);
 * Solo podrá usarse esta obra si se respeta la Licencia.
