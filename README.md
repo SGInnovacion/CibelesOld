@@ -28,9 +28,9 @@ Set up credentials:
     aws configure
     
     #######################CONFIDENTIAL########################
-    Access key ID: AKIATR6FRUBMJGQL6ZBW
-    Secret access key: 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
-
+    Access key ID: 
+    Secret access key: 
+    
 For lambda deployment (takes a couple of minutes):
 
     ./deploy.sh
